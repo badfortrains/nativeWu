@@ -5,11 +5,12 @@
 'use strict';
 
 var React = require('react-native');
-var CategoryStore = require("./category")
+var CategoryStore = require('./category')
 var {
   AppRegistry,
   StyleSheet,
   Text,
+  Image,
   ListView,
   View,
 } = React;
@@ -17,17 +18,45 @@ var {
 var nativeWu = React.createClass({
   getInitialState: function(){
     return {
+      dataSource: new ListView.DataSource({
+        rowHasChanged: (row1, row2) => row1 !== row2,
+      }),
       loaded: false
-    }
-  },  
-  componentDidMount: function(){
+    };
+  },
+  fetchData: function(){
     CategoryStore.getCategory("Artist")
     .then((artists)=>{
+      console.log(artists)
       this.setState({
-        artists: artists,
-        loaded: true
-      })
+        dataSource: this.state.dataSource.cloneWithRows(artists),
+        loaded: true,
+      });
     })
+    .done();
+  },
+  componentDidMount: function(){
+    this.fetchData();
+  },
+  renderArtist: function(artist){
+    return(
+       <View style={styles.container}>
+        <Text style={styles.title}>{artist}</Text>
+       </View>
+    )
+    // return(
+    //   <View style={styles.container}>
+    //     <Image
+    //       source={{uri: "http://resizing.flixster.com/ejBKOxK_lsUDmuR2iOqnTHEDoe8=/175x270/dkpu1ddg7pbsk.cloudfront.net/movie/11/18/90/11189059_ori.jpg"}}
+    //       style={styles.thumbnail}
+    //     />
+    //     <View style={styles.rightContainer}>
+    //       <Text style={styles.title}>{artist}</Text>
+    //       <Text style={styles.year}>{2012}</Text>
+    //     </View>
+    //   </View>
+    // )
+
   },
   renderLoading: function(){
     return (
@@ -43,15 +72,13 @@ var nativeWu = React.createClass({
       return this.renderLoading();
 
     return (
-      <View style={styles.container}>
-        <Text style={styles.welcome}>
-          Welcome to React Native!
-        </Text>
-        <Text style={styles.instructions}>
-          To get started, edit index.ios.js{'\n'}
-          Press Cmd+R to reload
-        </Text>
-      </View>
+      <ListView
+        dataSource={this.state.dataSource}
+        renderRow={this.renderArtist}
+        pageSize={50}
+        initialListSize={this.state.dataSource.getRowCount()}
+        style={styles.listView}
+      />
     );
   }
 });
@@ -59,18 +86,29 @@ var nativeWu = React.createClass({
 var styles = StyleSheet.create({
   container: {
     flex: 1,
+    flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#F5FCFF',
   },
-  welcome: {
-    fontSize: 20,
-    textAlign: 'center',
-    margin: 10,
+  rightContainer: {
+    flex: 1,
   },
-  instructions: {
+  title: {
+    fontSize: 20,
+    marginBottom: 8,
     textAlign: 'center',
-    color: '#333333',
+  },
+  year: {
+    textAlign: 'center',
+  },
+  thumbnail: {
+    width: 53,
+    height: 81,
+  },
+  listView: {
+    paddingTop: 20,
+    backgroundColor: '#F5FCFF',
   },
 });
 

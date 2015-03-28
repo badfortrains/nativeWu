@@ -1,5 +1,3 @@
-var fetch = require("node-fetch")
-
 var BACKEND = "http://192.168.1.110:3000"
 
 var serialize = function(obj) {
@@ -20,7 +18,7 @@ var CategoryStore = {
 		}
 
 		return fetch(url).then(res => {
-			return res.json().docs;
+			return res.json().then( d =>{ return d.docs });
 		})
 	}
 } 
