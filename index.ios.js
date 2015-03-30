@@ -12,10 +12,12 @@ var {
   Text,
   Image,
   ListView,
+  TouchableHighlight,
   View,
+  NavigatorIOS
 } = React;
 
-var nativeWu = React.createClass({
+var CategoryView = React.createClass({
   getInitialState: function(){
     return {
       dataSource: new ListView.DataSource({
@@ -25,7 +27,7 @@ var nativeWu = React.createClass({
     };
   },
   fetchData: function(){
-    CategoryStore.getCategory("Artist")
+    CategoryStore.getCategory(this.props.category,this.props.filter)
     .then((artists)=>{
       console.log(artists)
       this.setState({
@@ -38,11 +40,23 @@ var nativeWu = React.createClass({
   componentDidMount: function(){
     this.fetchData();
   },
-  renderArtist: function(artist){
+  rowClick: function(e){
+    console.log("row clicked")
+  },
+  _pressRow: function(artist){
+    this.props.navigator.push({
+      title: artist,
+      component: CategoryView,
+      passProps: {filter: {Artist: artist}, category: "Album"}
+    })
+  },
+  renderArtist: function(artist, sectionID, rowID){
     return(
-       <View style={styles.container}>
-        <Text style={styles.title}>{artist}</Text>
-       </View>
+      <TouchableHighlight onPress={() => this._pressRow(artist)}>
+        <View style={styles.container} onClick={this.rowClick}>
+          <Text style={styles.title}>{artist}</Text>
+        </View>
+      </TouchableHighlight>
     )
     // return(
     //   <View style={styles.container}>
@@ -72,23 +86,45 @@ var nativeWu = React.createClass({
       return this.renderLoading();
 
     return (
-      <ListView
-        dataSource={this.state.dataSource}
-        renderRow={this.renderArtist}
-        pageSize={50}
-        initialListSize={this.state.dataSource.getRowCount()}
-        style={styles.listView}
-      />
+      <View style={styles.listContainer}>
+        <ListView
+          dataSource={this.state.dataSource}
+          renderRow={this.renderArtist}
+          pageSize={50}
+          initialListSize={150}
+          style={styles.listView}
+        />
+      </View>
     );
   }
 });
 
+var nativeWu = React.createClass({
+  render: function(){
+    return (
+      <NavigatorIOS
+        style={styles.listContainer}
+        initialRoute={{
+          title: 'Artist',
+          component: CategoryView,
+          passProps: {category: "Artist"}
+        }}
+      />
+    )
+  }
+})
+
 var styles = StyleSheet.create({
+  listContainer: {
+    flex: 1,
+  },
   container: {
     flex: 1,
     flexDirection: 'row',
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
     alignItems: 'center',
+    paddingTop: 8,
+    paddingBottom: 8,
     backgroundColor: '#F5FCFF',
   },
   rightContainer: {
@@ -97,6 +133,7 @@ var styles = StyleSheet.create({
   title: {
     fontSize: 20,
     marginBottom: 8,
+    paddingLeft: 8,
     textAlign: 'center',
   },
   year: {

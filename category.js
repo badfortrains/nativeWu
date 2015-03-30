@@ -9,12 +9,21 @@ var serialize = function(obj) {
   return str.join("&");
 }
 
+var serializeFilter = function(obj){
+  var str = [];
+  for(var p in obj)
+    if (obj.hasOwnProperty(p)) {
+      str.push(encodeURIComponent("filter["+p+"]") + "=" + encodeURIComponent(obj[p]));
+    }
+  return str.join("&");
+}
+
 var CategoryStore = {
 	getCategory: function(category,filter){
 		var url = BACKEND + "/api/categories/"+category
 
 		if(filter){
-			url += "?" + serialize(filter)
+			url += "?" + serializeFilter(filter)
 		}
 
 		return fetch(url).then(res => {
