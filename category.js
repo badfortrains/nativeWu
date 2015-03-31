@@ -1,4 +1,4 @@
-var BACKEND = "http://192.168.1.110:3000"
+var BACKEND = "http://localhost:4000"
 
 var serialize = function(obj) {
   var str = [];

@@ -17,6 +17,77 @@ var {
   NavigatorIOS
 } = React;
 
+
+var AlbumView = React.createClass({
+  getInitialState: function(){
+    return {
+      dataSource: new ListView.DataSource({
+        rowHasChanged: (row1, row2) => row1 !== row2,
+        sectionHeaderHasChanged: (sec1, sec2) => sec1 !== sec2
+      }),
+      loaded: false
+    }; 
+  },
+  fetchData: function(){
+    CategoryStore.getCategory("albumTracks",this.props.filter)
+    .then((albumTracks)=>{
+      console.log(albumTracks)
+      this.setState({
+        dataSource: this.state.dataSource.cloneWithRowsAndSections(albumTracks),
+        loaded: true,
+      });
+    })
+    .done();
+  },
+  componentDidMount: function(){
+    this.fetchData();
+  },
+  renderTrack: function(track, sectionID, rowID){
+    return(
+      <TouchableHighlight>
+        <View style={styles.container}>
+          <Text style={styles.title}>{track.Title}</Text>
+        </View>
+      </TouchableHighlight>
+    )
+  },
+  renderSection: function(sectionData,sectionID){
+    return (
+      <View style={styles.sectionHeader}>
+        <Text style={styles.sectionTitle}>{sectionID}</Text>
+      </View>
+    )
+  },
+  renderLoading: function(){
+    return (
+      <View style={styles.container}>
+        <Text>
+          Loading Artists...
+        </Text>
+      </View>
+    );
+  },
+  render: function() {
+    if(!this.state.loaded)
+      return this.renderLoading();
+
+    return (
+      <View style={styles.listContainer}>
+        <ListView
+          dataSource={this.state.dataSource}
+          renderRow={this.renderTrack}
+          renderSectionHeader={this.renderSection}
+          pageSize={50}
+          initialListSize={150}
+          style={styles.listView}
+        />
+      </View>
+    );
+  }
+
+
+})
+
 var CategoryView = React.createClass({
   getInitialState: function(){
     return {
@@ -46,7 +117,7 @@ var CategoryView = React.createClass({
   _pressRow: function(artist){
     this.props.navigator.push({
       title: artist,
-      component: CategoryView,
+      component: AlbumView,
       passProps: {filter: {Artist: artist}, category: "Album"}
     })
   },
@@ -118,6 +189,17 @@ var styles = StyleSheet.create({
   listContainer: {
     flex: 1,
   },
+  sectionTitle: {
+    fontSize: 25
+  },
+  sectionHeader: {
+    flex: 1,
+    paddingTop: 8,
+    paddingBottom: 8,
+    backgroundColor: '#FFFFFF',
+    borderBottomWidth: 1,
+    borderBottomColor: '#000000'
+  },
   container: {
     flex: 1,
     flexDirection: 'row',
@@ -144,7 +226,6 @@ var styles = StyleSheet.create({
     height: 81,
   },
   listView: {
-    paddingTop: 20,
     backgroundColor: '#F5FCFF',
   },
 });
