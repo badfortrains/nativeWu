@@ -1,4 +1,4 @@
-var BACKEND = "http://localhost:4000"
+var BACKEND = "http://192.168.1.129:4000"
 
 var serialize = function(obj) {
   var str = [];
@@ -20,7 +20,7 @@ var serializeFilter = function(obj){
 
 var CategoryStore = {
 	getCategory: function(category,filter){
-		var url = BACKEND + "/api/categories/"+category
+		var url = BACKEND + "/api/categories/details/"+category
 
 		if(filter){
 			url += "?" + serializeFilter(filter)
@@ -31,5 +31,8 @@ var CategoryStore = {
 		})
 	}
 } 
+
+
+
 
 module.exports = CategoryStore;

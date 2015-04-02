@@ -3,6 +3,7 @@
  * https://github.com/facebook/react-native
  */
 'use strict';
+var BACKEND = "http://192.168.1.129:4000";
 
 var React = require('react-native');
 var CategoryStore = require('./category')
@@ -29,11 +30,11 @@ var AlbumView = React.createClass({
     }; 
   },
   fetchData: function(){
-    CategoryStore.getCategory("albumTracks",this.props.filter)
+    CategoryStore.getCategory("Album",this.props.filter)
     .then((albumTracks)=>{
-      console.log(albumTracks)
       this.setState({
-        dataSource: this.state.dataSource.cloneWithRowsAndSections(albumTracks),
+        images: albumTracks.images,
+        dataSource: this.state.dataSource.cloneWithRowsAndSections(albumTracks.tracks),
         loaded: true,
       });
     })
@@ -52,9 +53,30 @@ var AlbumView = React.createClass({
     )
   },
   renderSection: function(sectionData,sectionID){
-    return (
-      <View style={styles.sectionHeader}>
-        <Text style={styles.sectionTitle}>{sectionID}</Text>
+    // return (
+    //   <View style={styles.sectionHeader}>
+    //     <Text style={styles.sectionTitle}>{sectionID}</Text>
+    //   </View>
+    // )
+
+    var images = (this.state.images || []).filter(i => i.album == sectionID);
+    var url;
+    if(images[0])
+      url = images[0].url;
+
+    return(
+      <View style={styles.container}>
+        {url ? 
+          <Image
+            source={{uri: url}}
+            style={styles.thumbnail}
+          />
+          :
+          <View style={styles.missingThumbnail}></View>
+        }
+        <View style={styles.rightContainer}>
+          <Text style={styles.title}>{sectionID}</Text>
+        </View>
       </View>
     )
   },
@@ -100,7 +122,6 @@ var CategoryView = React.createClass({
   fetchData: function(){
     CategoryStore.getCategory(this.props.category,this.props.filter)
     .then((artists)=>{
-      console.log(artists)
       this.setState({
         dataSource: this.state.dataSource.cloneWithRows(artists),
         loaded: true,
@@ -111,9 +132,6 @@ var CategoryView = React.createClass({
   componentDidMount: function(){
     this.fetchData();
   },
-  rowClick: function(e){
-    console.log("row clicked")
-  },
   _pressRow: function(artist){
     this.props.navigator.push({
       title: artist,
@@ -122,25 +140,28 @@ var CategoryView = React.createClass({
     })
   },
   renderArtist: function(artist, sectionID, rowID){
+    // return(
+    //   <TouchableHighlight onPress={() => this._pressRow(artist.Artist)}>
+    //     <View style={styles.container} onClick={this.rowClick}>
+    //       <Text style={styles.title}>{artist.Artist}</Text>
+    //     </View>
+    //   </TouchableHighlight>
+    // )
+    var path =  /[^/]+[.]jpeg[.]jpg$/.exec(artist.thumb) || ["default-artist.png"],
+        url =  BACKEND+"/images/cache/"+path;
     return(
-      <TouchableHighlight onPress={() => this._pressRow(artist)}>
-        <View style={styles.container} onClick={this.rowClick}>
-          <Text style={styles.title}>{artist}</Text>
+      <TouchableHighlight onPress={() => this._pressRow(artist.Artist)}>
+        <View style={styles.container}>
+          <Image
+            source={{uri: url}}
+            style={styles.thumbnail}
+          />
+          <View style={styles.rightContainer}>
+            <Text style={styles.title}>{artist.Artist}</Text>
+          </View>
         </View>
       </TouchableHighlight>
     )
-    // return(
-    //   <View style={styles.container}>
-    //     <Image
-    //       source={{uri: "http://resizing.flixster.com/ejBKOxK_lsUDmuR2iOqnTHEDoe8=/175x270/dkpu1ddg7pbsk.cloudfront.net/movie/11/18/90/11189059_ori.jpg"}}
-    //       style={styles.thumbnail}
-    //     />
-    //     <View style={styles.rightContainer}>
-    //       <Text style={styles.title}>{artist}</Text>
-    //       <Text style={styles.year}>{2012}</Text>
-    //     </View>
-    //   </View>
-    // )
 
   },
   renderLoading: function(){
@@ -215,15 +236,22 @@ var styles = StyleSheet.create({
   title: {
     fontSize: 20,
     marginBottom: 8,
-    paddingLeft: 8,
-    textAlign: 'center',
+    marginLeft: 16,
+    textAlign: 'left',
   },
   year: {
     textAlign: 'center',
   },
   thumbnail: {
-    width: 53,
-    height: 81,
+    width: 75,
+    height: 75,
+    marginLeft: 8
+  },
+  missingThumbnail: {
+    width: 75,
+    height: 75,
+    marginLeft: 8,
+    backgroundColor: '#C0C0C0'
   },
   listView: {
     backgroundColor: '#F5FCFF',
