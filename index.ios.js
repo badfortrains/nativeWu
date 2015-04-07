@@ -55,31 +55,35 @@ var AlbumView = React.createClass({
   },
   renderTrack: function(track, sectionID, rowID){
     return(
-      <TouchableHighlight>
-        <View style={styles.container}>
-          <Text style={styles.title}>{track.Title}</Text>
-        </View>
-      </TouchableHighlight>
+        <TouchableHighlight>
+          <View style={styles.trackRowContainer}>
+            <View style={styles.trackRow}>
+              <Text style={styles.trackNumber}>{track.TrackNumber}</Text>
+              <Text style={styles.title}>{track.Title}</Text>
+            </View>
+          </View>
+        </TouchableHighlight>
     )
   },
   renderSection: function(sectionData,sectionID){
-    var images = (this.state.images || []).filter(i => i.album == sectionID);
+    var images = (this.state.images || []).filter(i => i.album == sectionID && i.size =="large");
     var url;
     if(images[0])
-      url = images[0].url;
+      url = BACKEND + "/images/cache/albums/" + images[0].filename;
 
+    console.log(url)
     return(
-      <View style={styles.container}>
+      <View style={styles.sectionHeader}>
         {url ? 
           <Image
             source={{uri: url}}
-            style={styles.thumbnail}
+            style={styles.thumbnailLarge}
           />
           :
           <View style={styles.missingThumbnail}></View>
         }
         <View style={styles.rightContainer}>
-          <Text style={styles.title}>{sectionID}</Text>
+          <Text style={styles.sectionTitle}>{sectionID}</Text>
         </View>
       </View>
     )
@@ -254,18 +258,35 @@ var nativeWu = React.createClass({
 
 var styles = StyleSheet.create({
   listContainer: {
-    flex: 1,
+    flex: 1
+  },
+  smallPadding: {
+    padding: 8
+  },
+  largeWidthPadding: {
+    paddingLeft: 16,
+    paddingRight: 16,
+    paddingTop: 8,
+    paddingBottom: 8
   },
   sectionTitle: {
-    fontSize: 25
+    fontSize: 18,
+    marginBottom: 8,
+    marginLeft: 8,
+    textAlign: 'left',
+    fontWeight: "600"
   },
   sectionHeader: {
     flex: 1,
-    paddingTop: 8,
-    paddingBottom: 8,
-    backgroundColor: '#FFFFFF',
+    paddingTop: 16,
+    paddingBottom: 16,
+    paddingLeft: 16,
+    paddingRight: 16,
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    alignItems: 'flex-start',
     borderBottomWidth: 1,
-    borderBottomColor: '#000000'
+    borderBottomColor: 'rgba(0,0,0,0.2)'
   },
   container: {
     flex: 1,
@@ -274,24 +295,46 @@ var styles = StyleSheet.create({
     alignItems: 'center',
     paddingTop: 8,
     paddingBottom: 8,
-    backgroundColor: '#F5FCFF',
+    paddingLeft: 8,
+    paddingRight: 8,
+    backgroundColor: '#FFFFFF'
+  },
+  trackRowContainer: {
+    flex: 1,
+    paddingLeft: 16,
+    paddingRight: 16,
+    backgroundColor: "#FFFFFF",
+  },
+  trackRow: {
+    borderBottomWidth: 1,
+    borderBottomColor: "rgba(0,0,0,0.1)",
+    flex: 1,
+    paddingBottom: 16,
+    paddingTop: 16,
+    flexDirection: "row",
   },
   rightContainer: {
     flex: 1,
   },
   title: {
-    fontSize: 20,
-    marginBottom: 8,
+    fontSize: 16,
     marginLeft: 16,
+    fontWeight: "600",
     textAlign: 'left',
+  },
+  trackNumber: {
+    fontSize: 16,
   },
   year: {
     textAlign: 'center',
   },
+  thumbnailLarge: {
+    width: 100,
+    height: 100,
+  },
   thumbnail: {
     width: 75,
     height: 75,
-    marginLeft: 8
   },
   missingThumbnail: {
     width: 75,
@@ -300,7 +343,7 @@ var styles = StyleSheet.create({
     backgroundColor: '#C0C0C0'
   },
   listView: {
-    backgroundColor: '#F5FCFF',
+    backgroundColor: '#FFFFFF',
   },
   searchRow: {
     backgroundColor: '#eeeeee',
