@@ -3,7 +3,7 @@
  * https://github.com/facebook/react-native
  */
 'use strict';
-var BACKEND = "http://192.168.1.129:4000";
+var BACKEND = "http://localhost:4000";
 
 var React = require('react-native');
 var CategoryStore = require('./category')
@@ -18,6 +18,15 @@ var {
   NavigatorIOS
 } = React;
 
+var NowPlaying = React.createClass({
+  render: function(){
+    return (
+      <View>  
+        <Text>Render Now playing</Text>
+      </View>
+    )
+  }
+})
 
 var AlbumView = React.createClass({
   getInitialState: function(){
@@ -122,12 +131,18 @@ var CategoryView = React.createClass({
   fetchData: function(){
     CategoryStore.getCategory(this.props.category,this.props.filter)
     .then((artists)=>{
+      console.log("artists",artists)
       this.setState({
         dataSource: this.state.dataSource.cloneWithRows(artists),
         loaded: true,
       });
     })
-    .done();
+    .catch((e)=>{
+      this.setState({
+        loaded: true,
+        error: e.message
+      })
+    });
   },
   componentDidMount: function(){
     this.fetchData();
@@ -164,6 +179,15 @@ var CategoryView = React.createClass({
     )
 
   },
+  renderError: function(){
+    return (
+      <View style={styles.container}>
+        <Text>
+          Error: {this.state.error}
+        </Text>
+      </View>
+    )
+  },
   renderLoading: function(){
     return (
       <View style={styles.container}>
@@ -174,8 +198,13 @@ var CategoryView = React.createClass({
     );
   },
   render: function() {
-    if(!this.state.loaded)
+    if(!this.state.loaded){
       return this.renderLoading();
+    }
+
+    if(this.state.error){
+      return this.renderError();
+    }
 
     return (
       <View style={styles.listContainer}>
@@ -183,6 +212,7 @@ var CategoryView = React.createClass({
           dataSource={this.state.dataSource}
           renderRow={this.renderArtist}
           pageSize={50}
+          onEndReachedThreshold={200}
           initialListSize={150}
           style={styles.listView}
         />
@@ -192,13 +222,23 @@ var CategoryView = React.createClass({
 });
 
 var nativeWu = React.createClass({
+  _pressNowPlaying: function(){
+    this.refs.navigator.push({
+      title: "Now Playing",
+      component: NowPlaying
+    })
+  },
   render: function(){
     return (
       <NavigatorIOS
+        ref="navigator"
         style={styles.listContainer}
+        tintColor="#AB3C3C"
         initialRoute={{
           title: 'Artist',
           component: CategoryView,
+          rightButtonTitle: "Now Playing",
+          onRightButtonPress: this._pressNowPlaying,
           passProps: {category: "Artist"}
         }}
       />
