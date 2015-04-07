@@ -14,6 +14,7 @@ var {
   Image,
   ListView,
   TouchableHighlight,
+  TextInput,
   View,
   NavigatorIOS
 } = React;
@@ -62,12 +63,6 @@ var AlbumView = React.createClass({
     )
   },
   renderSection: function(sectionData,sectionID){
-    // return (
-    //   <View style={styles.sectionHeader}>
-    //     <Text style={styles.sectionTitle}>{sectionID}</Text>
-    //   </View>
-    // )
-
     var images = (this.state.images || []).filter(i => i.album == sectionID);
     var url;
     if(images[0])
@@ -133,6 +128,7 @@ var CategoryView = React.createClass({
     .then((artists)=>{
       console.log("artists",artists)
       this.setState({
+        artists: artists,
         dataSource: this.state.dataSource.cloneWithRows(artists),
         loaded: true,
       });
@@ -155,13 +151,6 @@ var CategoryView = React.createClass({
     })
   },
   renderArtist: function(artist, sectionID, rowID){
-    // return(
-    //   <TouchableHighlight onPress={() => this._pressRow(artist.Artist)}>
-    //     <View style={styles.container} onClick={this.rowClick}>
-    //       <Text style={styles.title}>{artist.Artist}</Text>
-    //     </View>
-    //   </TouchableHighlight>
-    // )
     var path =  /[^/]+[.]jpeg[.]jpg$/.exec(artist.thumb) || ["default-artist.png"],
         url =  BACKEND+"/images/cache/"+path;
     return(
@@ -177,7 +166,6 @@ var CategoryView = React.createClass({
         </View>
       </TouchableHighlight>
     )
-
   },
   renderError: function(){
     return (
@@ -197,6 +185,14 @@ var CategoryView = React.createClass({
       </View>
     );
   },
+  _search: function(text) {
+    var regex = new RegExp(text, 'i');
+    var filter = (row) => regex.test(row.Artist);
+
+    this.setState({
+      dataSource: this.state.dataSource.cloneWithRows(this.state.artists.filter(filter))
+    });
+  },
   render: function() {
     if(!this.state.loaded){
       return this.renderLoading();
@@ -208,6 +204,16 @@ var CategoryView = React.createClass({
 
     return (
       <View style={styles.listContainer}>
+        <View style={styles.searchRow}>
+          <TextInput
+            autoCapitalize="none"
+            autoCorrect={false}
+            clearButtonMode="always"
+            onChangeText={this._search.bind(this)}
+            placeholder="Search..."
+            style={styles.searchTextInput}
+          />
+        </View>
         <ListView
           dataSource={this.state.dataSource}
           renderRow={this.renderArtist}
@@ -295,6 +301,21 @@ var styles = StyleSheet.create({
   },
   listView: {
     backgroundColor: '#F5FCFF',
+  },
+  searchRow: {
+    backgroundColor: '#eeeeee',
+    paddingTop: 75,
+    paddingLeft: 10,
+    paddingRight: 10,
+    paddingBottom: 10,
+  },
+  searchTextInput: {
+    backgroundColor: 'white',
+    borderColor: '#cccccc',
+    borderRadius: 3,
+    borderWidth: 1,
+    height: 30,
+    paddingLeft: 8,
   },
 });
 
