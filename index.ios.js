@@ -7,6 +7,7 @@ var BACKEND = "http://localhost:4000";
 
 var React = require('react-native');
 var CategoryStore = require('./category')
+var Icon = require('FAKIconImage');
 var {
   AppRegistry,
   StyleSheet,
@@ -76,7 +77,7 @@ var AlbumView = React.createClass({
       <View style={styles.sectionHeader}>
         {url ? 
           <Image
-            source={{uri: url}}
+            source={{uri: "http://localhost:4000/images/cache/test.svg"}}
             style={styles.thumbnailLarge}
           />
           :
@@ -84,6 +85,12 @@ var AlbumView = React.createClass({
         }
         <View style={styles.rightContainer}>
           <Text style={styles.sectionTitle}>{sectionID}</Text>
+          <Icon
+            name='foundation|play-circle'
+            size={50}
+            color='#AB3C3C'
+            style={styles.largeIcon}
+          />
         </View>
       </View>
     )
@@ -359,6 +366,11 @@ var styles = StyleSheet.create({
     borderWidth: 1,
     height: 30,
     paddingLeft: 8,
+  },
+  largeIcon: {
+    width: 50,
+    height: 50,
+    margin: 10
   },
 });
 
