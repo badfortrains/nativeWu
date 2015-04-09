@@ -19,7 +19,7 @@ var EqIcon = React.createClass({
   mixins: [NativeMethodsMixin],
   getDefaultProps: function(){
     return {
-      enableAnimation: true
+      enableAnimation: false
     }
   },
   render: function() {

@@ -17,20 +17,15 @@
     BOOL _animationEnabled;
 }
 
-- (CALayer*)setupLayer:(float)offset
-{
-    CALayer* bar = [CALayer layer];
-    bar.anchorPoint = CGPointMake(0.5, 1);
-    bar.frame = CGRectMake(offset, self.frame.size.height - _barHeight, _barHeight, _barHeight);
-    bar.backgroundColor = [UIColor blueColor].CGColor;
-    [self.layer addSublayer:bar];
-    return bar;
-}
-
 - (void)baseInit {
-    NSLog(@"start the animation");
-    NSLog(@"height of frame in init %f",self.frame.size.height);
-    //create sublayer
+    _animationEnabled = false;
+    _bar1 = [CALayer layer];
+    _bar2 = [CALayer layer];
+    _bar3 = [CALayer layer];
+    
+    [self.layer addSublayer:_bar1];
+    [self.layer addSublayer:_bar2];
+    [self.layer addSublayer:_bar3];
 
 }
 
@@ -50,10 +45,10 @@
     return self;
 }
 
+
 - (void)layoutSubviews
 {
     [super layoutSubviews];
-    NSLog(@"height of frame %f",self.frame.size.height);
     
     [_bar1 removeAllAnimations];
     [_bar2 removeAllAnimations];
@@ -62,16 +57,12 @@
     
     _barHeight = self.frame.size.height * 0.2;
     if(_animationEnabled){
-        _bar1 = [self setupLayer:0.0f];
-        _bar2 = [self setupLayer:_barHeight * 2];
-        _bar3 = [self setupLayer:_barHeight * 4];
         [self animate];
     }
     
 }
 
 - (void)setEnableAnimation:(BOOL)enableAnimation{
-    //not intialized yet
     _animationEnabled = enableAnimation;
     
     if(_barHeight == 0){
@@ -79,26 +70,13 @@
     }
     
     if(enableAnimation){
-        _bar1 = [self setupLayer:0.0f];
-        _bar2 = [self setupLayer:_barHeight * 2];
-        _bar3 = [self setupLayer:_barHeight * 4];
         [self animate];
     }else{
-        [self clearAnimations];
+        [self shrinkBar:_bar1];
+        [self shrinkBar:_bar2];
+        [self shrinkBar:_bar3];
     }
 }
-
-- (void)animationDidStop:(CAAnimation *)theAnimation finished:(BOOL)flag
-{
-    NSLog(@"Hello end animation");
-}
-
--(void)clearAnimations{
-    [self shrinkBar:_bar1];
-    [self shrinkBar:_bar2];
-    [self shrinkBar:_bar3];
-}
-
 
 -(void)shrinkBar:(CALayer*)bar{
     CAAnimation* grow = [bar animationForKey:@"grow"];
@@ -120,6 +98,15 @@
     return shrink;
 }
 
+
+- (void)setupLayer:(CALayer*)bar withOffset:(float)offset
+{
+    bar.anchorPoint = CGPointMake(0.5, 1);
+    bar.frame = CGRectMake(offset, self.frame.size.height - _barHeight, _barHeight, _barHeight);
+    bar.backgroundColor = [UIColor blueColor].CGColor;
+}
+
+
 -(CABasicAnimation*)setupAnimation:(CFTimeInterval)duration{
     
     CABasicAnimation *grow = [CABasicAnimation animationWithKeyPath:@"bounds.size.height"];
@@ -134,6 +121,10 @@
 
 
 -(void)animate{
+    [self setupLayer:_bar1 withOffset:0.0f];
+    [self setupLayer:_bar2 withOffset:_barHeight * 2];
+    [self setupLayer:_bar3 withOffset:_barHeight * 4];
+    
     [_bar1 addAnimation:[self setupAnimation:.5] forKey:@"grow" ];
     [_bar2 addAnimation:[self setupAnimation:0.45] forKey:@"grow"];
     [_bar3 addAnimation:[self setupAnimation:.65] forKey:@"grow"];
