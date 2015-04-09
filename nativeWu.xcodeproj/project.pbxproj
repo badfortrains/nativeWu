@@ -23,6 +23,8 @@
 		832341BD1AAA6AB300B99B32 /* libRCTText.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 832341B51AAA6A8300B99B32 /* libRCTText.a */; };
 		9938A4541AD48CB600C71914 /* libReactNativeIcons.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9938A4511AD48C8C00C71914 /* libReactNativeIcons.a */; };
 		9938A4551AD48D1F00C71914 /* ReactNativeIconsResources.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 9938A4531AD48C8C00C71914 /* ReactNativeIconsResources.bundle */; };
+		99A4BA331AD64CD200866594 /* EqView.m in Sources */ = {isa = PBXBuildFile; fileRef = 99A4BA321AD64CD200866594 /* EqView.m */; };
+		99A4BA411AD64DB500866594 /* EqViewManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 99A4BA401AD64DB500866594 /* EqViewManager.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -124,6 +126,10 @@
 		146833FF1AC3E56700842450 /* React.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = React.xcodeproj; path = "node_modules/react-native/React/React.xcodeproj"; sourceTree = "<group>"; };
 		832341B01AAA6A8300B99B32 /* RCTText.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTText.xcodeproj; path = "node_modules/react-native/Libraries/Text/RCTText.xcodeproj"; sourceTree = "<group>"; };
 		9938A44B1AD48C8C00C71914 /* ReactNativeIcons.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = ReactNativeIcons.xcodeproj; path = "node_modules/react-native-icons/ios/ReactNativeIcons.xcodeproj"; sourceTree = "<group>"; };
+		99A4BA311AD64CD200866594 /* EqView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EqView.h; sourceTree = "<group>"; };
+		99A4BA321AD64CD200866594 /* EqView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EqView.m; sourceTree = "<group>"; };
+		99A4BA3F1AD64DB500866594 /* EqViewManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EqViewManager.h; sourceTree = "<group>"; };
+		99A4BA401AD64DB500866594 /* EqViewManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EqViewManager.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -213,6 +219,10 @@
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				13B07FB11A68108700A75B9A /* LaunchScreen.xib */,
 				13B07FB71A68108700A75B9A /* main.m */,
+				99A4BA311AD64CD200866594 /* EqView.h */,
+				99A4BA321AD64CD200866594 /* EqView.m */,
+				99A4BA3F1AD64DB500866594 /* EqViewManager.h */,
+				99A4BA401AD64DB500866594 /* EqViewManager.m */,
 			);
 			name = nativeWu;
 			sourceTree = "<group>";
@@ -471,6 +481,8 @@
 			files = (
 				13B07FBC1A68108700A75B9A /* AppDelegate.m in Sources */,
 				13B07FC11A68108700A75B9A /* main.m in Sources */,
+				99A4BA411AD64DB500866594 /* EqViewManager.m in Sources */,
+				99A4BA331AD64CD200866594 /* EqView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

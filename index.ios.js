@@ -8,6 +8,7 @@ var BACKEND = "http://localhost:4000";
 var React = require('react-native');
 var CategoryStore = require('./category')
 var Icon = require('FAKIconImage');
+var EqIcon = require('./EqIcon')
 var {
   AppRegistry,
   StyleSheet,
@@ -37,7 +38,8 @@ var AlbumView = React.createClass({
         rowHasChanged: (row1, row2) => row1 !== row2,
         sectionHeaderHasChanged: (sec1, sec2) => sec1 !== sec2
       }),
-      loaded: false
+      loaded: false,
+      animation: true,
     }; 
   },
   fetchData: function(){
@@ -54,9 +56,12 @@ var AlbumView = React.createClass({
   componentDidMount: function(){
     this.fetchData();
   },
+  pressTrack: function(){
+    this.setState({animation: !this.state.animation})
+  },
   renderTrack: function(track, sectionID, rowID){
     return(
-        <TouchableHighlight>
+        <TouchableHighlight onPress={this.pressTrack}>
           <View style={styles.trackRowContainer}>
             <View style={styles.trackRow}>
               <Text style={styles.trackNumber}>{track.TrackNumber}</Text>
@@ -118,6 +123,7 @@ var AlbumView = React.createClass({
           initialListSize={150}
           style={styles.listView}
         />
+         <EqIcon enableAnimation={this.state.animation}/>
       </View>
     );
   }
