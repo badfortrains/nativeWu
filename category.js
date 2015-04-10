@@ -1,4 +1,4 @@
-var BACKEND = "http://localhost:4000"
+var BACKEND = require("./config").BACKEND;
 
 var serialize = function(obj) {
   var str = [];

@@ -28,6 +28,8 @@
         [self.layer addSublayer:_bar1];
         [self.layer addSublayer:_bar2];
         [self.layer addSublayer:_bar3];
+        
+        [self registerForAppStateNotifications];
     }
     return self;
 }
@@ -113,5 +115,23 @@
     [_bar1 addAnimation:[self setupAnimation:.4] forKey:@"grow" ];
     [_bar2 addAnimation:[self setupAnimation:0.35] forKey:@"grow"];
     [_bar3 addAnimation:[self setupAnimation:.55] forKey:@"grow"];
+}
+
+- (void)registerForAppStateNotifications {
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(applicationWillEnterForeground) name:UIApplicationWillEnterForegroundNotification object:nil];
+}
+
+- (void)dealloc {
+    [self unregisterFromAppStateNotifications];
+}
+
+- (void)unregisterFromAppStateNotifications {
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
+- (void)applicationWillEnterForeground {
+    if(_animationEnabled){
+        [self animate];
+    }
 }
 @end

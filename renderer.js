@@ -1,5 +1,7 @@
 var io = require("./socket.io-client");
 var EventEmitter = require("EventEmitter");
+var BACKEND = require("./config").BACKEND;
+var AppStateIOS = require('react-native').AppStateIOS;
 
 var serializeFilter = function(obj){
   var str = [];
@@ -11,26 +13,31 @@ var serializeFilter = function(obj){
 }
 
 var RendererStore = Object.assign(new EventEmitter(),{
+	playerState: {},
+	currentAppState: "active",
 	connect: function(){
-		this.socket = io('http://localhost:4000/controller',{jsonp: false});
+		this.socket = io(BACKEND+'/controller',{jsonp: false});
 
 	    this.socket.on("setRendererResult",(err,uuid)=>{
 	      if(err){
 	      	console.log("set renderer error",err)
 	      }else{
 	      	this.playerState = {};
-	      	this.currentRenderer = {}
 	      	this.uuid = uuid;
 	      	this._getRendererInfo(uuid)
 	      }
 	    })
 
+	    window.io = this.socket;
 	    this.socket.on("stateChange",(event)=>{
       		this.playerState[event.name] = event.value;
       		if(event.name == "currentPlayingTrack" || event.name == "TransportState"){
+      			console.log(event)
       			this.emit("TransportState",this.playerState.currentPlayingTrack,this.playerState.TransportState)
       		}
     	});
+
+    	AppStateIOS.addEventListener('change', this._handleStateChange.bind(this));
 	},
 	playAlbumTracks: function(artist,album,trackNumber,id){
 		var uuid = this.uuid,
@@ -43,9 +50,10 @@ var RendererStore = Object.assign(new EventEmitter(),{
 		if(!uuid){
 			return Promise.reject(new Error("No renderer selected"));
 		}else{
+			console.log("play tracks")
 			return (
-				fetch("http://localhost:4000/api/renderers/"+uuid+"/playNow",{
-					method: "post",
+				fetch(BACKEND+"/api/renderers/"+uuid+"/playNow",{
+					method: "put",
 					body: serializeFilter(filter),
 					headers: { "Content-Type": "application/x-www-form-urlencoded" },
 				})
@@ -56,13 +64,33 @@ var RendererStore = Object.assign(new EventEmitter(),{
 			)
 		}
 	},
-	playerState: {},
-	currentRenderer: {},
+	currentTrackID: function(){
+		return this.playerState.currentPlayingTrack ? this.playerState.currentPlayingTrack.id : null;
+	},
+	_handleStateChange: function(currentAppState){
+		console.log(currentAppState)
+		console.log("socket is disconnected:" ,this.socket.disconnected)
+		if(currentAppState == "active" && this.currentAppState != "active"){
+			//back from background try to recconnect
+			this.socket.connect();
+		}else if(currentAppState == "background"){
+			this.socket.disconnect();
+		}
+		this.currentAppState = currentAppState;
+
+	},
 	_getRendererInfo: function(uuid){
-		console.log("GET UUID","http://wupnp.com/api/renderers/"+uuid)
-		fetch("http://localhost:4000/api/renderers/"+uuid)
+		console.log("GET UUID",BACKEND+"/api/renderers/"+uuid)
+		fetch(BACKEND+"/api/renderers/"+uuid)
 		.then((res) =>  res.json())
-		.then((info) => this.currentRenderer = info)
+		.then((info) =>{
+			if(info.currentPlayingTrack || this.playerState.TransportState != info.TransportState){
+				this.playerState = info
+				this.emit("TransportState",info.currentPlayingTrack,info.TransportState)
+			}else{
+				this.playerState = info
+			}
+		})
 		.catch((err) => console.log("ERR",err));
 	}
 })

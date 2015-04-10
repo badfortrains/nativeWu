@@ -3,7 +3,7 @@
  * https://github.com/facebook/react-native
  */
 'use strict';
-var BACKEND = "http://localhost:4000";
+var BACKEND = require("./config").BACKEND;
 
 var React = require('react-native');
 var CategoryStore = require('./category')
@@ -47,12 +47,17 @@ var AlbumView = React.createClass({
   fetchData: function(){
     CategoryStore.getCategory("Album",this.props.filter)
     .then((albumTracks)=>{
+
       this.setState({
         images: albumTracks.images,
-        dataSource: this.state.dataSource.cloneWithRowsAndSections(Object.assign({},albumTracks.tracks)),
         tracks: albumTracks.tracks,
         loaded: true,
       });
+
+      this.updateTrack(renderer.playerState.currentPlayingTrack,
+                        renderer.playerState.TransportState,
+                        true)
+
     })
     .done();
   },
@@ -63,8 +68,10 @@ var AlbumView = React.createClass({
   // componentWillUnmount: function(){
   //   renderer.removeListener("TransportState",this.updateTrack);
   // },
-  updateTrack: function(track,trackState){
-    if(trackState != "LOADING" && trackState != "PLAYING" && trackState != "PAUSED")
+  updateTrack: function(track,trackState,initialLoad){
+    console.log("upadteTrack",trackState,track ? track._id : null)
+
+    if(!initialLoad && trackState != "LOADING" && trackState != "PLAYING" && trackState != "PAUSED_PLAYBACK")
       return;
 
     var id = track ? track._id : null,
@@ -83,6 +90,7 @@ var AlbumView = React.createClass({
     })
 
     if(trackPath){
+      console.log("update width state",trackState == "PLAYING")
       newTracks[trackPath.sectionID][trackPath.rowID] = Object.assign(
         {
           nowPlaying: true,
@@ -91,6 +99,10 @@ var AlbumView = React.createClass({
         newTracks[trackPath.sectionID][trackPath.rowID]
       )
 
+      this.setState({
+         dataSource: this.state.dataSource.cloneWithRowsAndSections(newTracks)
+      })
+    }else if(initialLoad){
       this.setState({
          dataSource: this.state.dataSource.cloneWithRowsAndSections(newTracks)
       })
@@ -134,7 +146,7 @@ var AlbumView = React.createClass({
       <View style={styles.sectionHeader}>
         {url ? 
           <Image
-            source={{uri: "http://localhost:4000/images/cache/test.svg"}}
+            source={{uri: BACKEND+"/images/cache/test.svg"}}
             style={styles.thumbnailLarge}
           />
           :
