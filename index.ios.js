@@ -47,7 +47,8 @@ var AlbumView = React.createClass({
     .then((albumTracks)=>{
       this.setState({
         images: albumTracks.images,
-        dataSource: this.state.dataSource.cloneWithRowsAndSections(albumTracks.tracks),
+        dataSource: this.state.dataSource.cloneWithRowsAndSections(Object.assign({},albumTracks.tracks)),
+        tracks: albumTracks.tracks,
         loaded: true,
       });
     })
@@ -56,15 +57,40 @@ var AlbumView = React.createClass({
   componentDidMount: function(){
     this.fetchData();
   },
-  pressTrack: function(){
-    this.setState({animation: !this.state.animation})
+  pressTrack: function(sectionID,rowID, id){
+    var newTracks = {}
+    var sectionKeys = Object.keys(this.state.tracks);
+    sectionKeys.forEach((k)=>{
+      if(sectionID == k)
+        newTracks[k] = Object.assign({},this.state.tracks[k])
+      else
+        newTracks[k] = this.state.tracks[k]
+    })
+
+    newTracks[sectionID][rowID] = Object.assign(
+      {
+        nowPlaying: true,
+        animate: this.state.nowPlaying != id
+      },
+      this.state.tracks[sectionID][rowID]
+    )
+
+    this.setState({
+       nowPlaying: id !== this.state.nowPlaying && id,
+       dataSource: this.state.dataSource.cloneWithRowsAndSections(newTracks)
+    })
   },
   renderTrack: function(track, sectionID, rowID){
     return(
-        <TouchableHighlight onPress={this.pressTrack}>
+        <TouchableHighlight onPress={() => this.pressTrack(sectionID, rowID, track._id)}>
           <View style={styles.trackRowContainer}>
             <View style={styles.trackRow}>
-              <Text style={styles.trackNumber}>{track.TrackNumber}</Text>
+              {
+                track.nowPlaying ?
+                <EqIcon style={styles.eqIcon} enableAnimation={track.animate} barColor="#AB3C3C"/>
+                :
+                <Text style={styles.trackNumber}>{track.TrackNumber}</Text>
+              }
               <Text style={styles.title}>{track.Title}</Text>
             </View>
           </View>
@@ -123,7 +149,6 @@ var AlbumView = React.createClass({
           initialListSize={150}
           style={styles.listView}
         />
-         <EqIcon enableAnimation={this.state.animation}/>
       </View>
     );
   }
@@ -329,6 +354,9 @@ var styles = StyleSheet.create({
   rightContainer: {
     flex: 1,
   },
+  eqIcon: {
+    marginRight: 8
+  },
   title: {
     fontSize: 16,
     marginLeft: 16,
@@ -337,6 +365,7 @@ var styles = StyleSheet.create({
   },
   trackNumber: {
     fontSize: 16,
+    width: 24,
   },
   year: {
     textAlign: 'center',

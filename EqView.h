@@ -12,4 +12,6 @@
 
 - (void)setEnableAnimation:(BOOL)enableAnimation;
 
+@property (nonatomic, assign) UIColor* barColor;
+
 @end

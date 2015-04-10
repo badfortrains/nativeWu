@@ -17,5 +17,6 @@
 }
 
 RCT_EXPORT_VIEW_PROPERTY(enableAnimation, BOOL);
+RCT_EXPORT_VIEW_PROPERTY(barColor, UIColor);
 
 @end

@@ -19,14 +19,16 @@ var EqIcon = React.createClass({
   mixins: [NativeMethodsMixin],
   getDefaultProps: function(){
     return {
-      enableAnimation: false
+      enableAnimation: false,
+      barColor: "rgb(0,0,250)",
     }
   },
   render: function() {
     return (
       <RCTSegmentedControl
-        style={styles.eqIcon}
+        style={[styles.eqIcon,this.props.style]}
         enableAnimation={this.props.enableAnimation}
+        barColor={this.props.barColor}
       />
     );
   }
@@ -35,15 +37,14 @@ var EqIcon = React.createClass({
 
 var styles = StyleSheet.create({
   eqIcon: {
-    width: 24,
-    height: 24,
-    borderWidth: 2,
-    borderColor: "black",
+    width: 16,
+    height: 16,
   },
 });
 
 var attributes = merge(ReactIOSViewAttributes.UIView, {
-  enableAnimation: true
+  enableAnimation: true,
+  barColor: true
 });
 
 
