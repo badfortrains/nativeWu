@@ -9,6 +9,7 @@ var React = require('react-native');
 var CategoryStore = require('./category')
 var Icon = require('FAKIconImage');
 var EqIcon = require('./EqIcon')
+var renderer = require("./renderer")
 var {
   AppRegistry,
   StyleSheet,
@@ -16,6 +17,7 @@ var {
   Image,
   ListView,
   TouchableHighlight,
+  TouchableOpacity,
   TextInput,
   View,
   NavigatorIOS
@@ -56,29 +58,47 @@ var AlbumView = React.createClass({
   },
   componentDidMount: function(){
     this.fetchData();
+    renderer.addListener("TransportState",this.updateTrack);
+  },
+  // componentWillUnmount: function(){
+  //   renderer.removeListener("TransportState",this.updateTrack);
+  // },
+  updateTrack: function(track,trackState){
+    if(trackState != "LOADING" && trackState != "PLAYING" && trackState != "PAUSED")
+      return;
+
+    var id = track ? track._id : null,
+        newTracks = {},
+        sectionKeys = Object.keys(this.state.tracks),
+        trackPath;
+
+
+    sectionKeys.forEach((k)=>{
+        newTracks[k] = Object.assign({},this.state.tracks[k])
+        Object.keys(newTracks[k]).forEach((rowKey)=>{
+          if(newTracks[k][rowKey]._id == id){
+            trackPath = {sectionID: k,rowID: rowKey}
+          }
+        })
+    })
+
+    if(trackPath){
+      newTracks[trackPath.sectionID][trackPath.rowID] = Object.assign(
+        {
+          nowPlaying: true,
+          animate: trackState == "PLAYING"
+        },
+        newTracks[trackPath.sectionID][trackPath.rowID]
+      )
+
+      this.setState({
+         dataSource: this.state.dataSource.cloneWithRowsAndSections(newTracks)
+      })
+    }
   },
   pressTrack: function(sectionID,rowID, id){
-    var newTracks = {}
-    var sectionKeys = Object.keys(this.state.tracks);
-    sectionKeys.forEach((k)=>{
-      if(sectionID == k)
-        newTracks[k] = Object.assign({},this.state.tracks[k])
-      else
-        newTracks[k] = this.state.tracks[k]
-    })
-
-    newTracks[sectionID][rowID] = Object.assign(
-      {
-        nowPlaying: true,
-        animate: this.state.nowPlaying != id
-      },
-      this.state.tracks[sectionID][rowID]
-    )
-
-    this.setState({
-       nowPlaying: id !== this.state.nowPlaying && id,
-       dataSource: this.state.dataSource.cloneWithRowsAndSections(newTracks)
-    })
+    renderer.playAlbumTracks(this.props.filter.Artist,sectionID,rowID);
+    this.updateTrack({_id:id},"LOADING")
   },
   renderTrack: function(track, sectionID, rowID){
     return(
@@ -97,6 +117,12 @@ var AlbumView = React.createClass({
         </TouchableHighlight>
     )
   },
+  pressIcon: function(sectionID){
+    var rowID = Object.keys(this.state.tracks[sectionID])[0],
+        trackId = this.state.tracks[sectionID][rowID]._id;
+
+    this.pressTrack(sectionID,rowID,trackId);
+  },
   renderSection: function(sectionData,sectionID){
     var images = (this.state.images || []).filter(i => i.album == sectionID && i.size =="large");
     var url;
@@ -114,14 +140,16 @@ var AlbumView = React.createClass({
           :
           <View style={styles.missingThumbnail}></View>
         }
-        <View style={styles.rightContainer}>
-          <Text style={styles.sectionTitle}>{sectionID}</Text>
-          <Icon
-            name='foundation|play-circle'
-            size={50}
-            color='#AB3C3C'
-            style={styles.largeIcon}
-          />
+        <View style={styles.rightContainer} >
+          <Text style={styles.sectionTitle} >{sectionID}</Text>
+          <TouchableOpacity onPress={()=> this.pressIcon(sectionID)}>
+            <Icon
+              name='foundation|play-circle'
+              size={45}
+              color='#AB3C3C'
+              style={styles.largeIcon}
+            />
+          </TouchableOpacity>
         </View>
       </View>
     )
@@ -317,8 +345,8 @@ var styles = StyleSheet.create({
   sectionHeader: {
     flex: 1,
     paddingTop: 16,
-    paddingBottom: 16,
     paddingLeft: 16,
+    paddingBottom: 16,
     paddingRight: 16,
     flexDirection: 'row',
     justifyContent: 'flex-start',
@@ -403,9 +431,9 @@ var styles = StyleSheet.create({
     paddingLeft: 8,
   },
   largeIcon: {
-    width: 50,
-    height: 50,
-    margin: 10
+    width: 45,
+    height: 45,
+    marginLeft: 8,
   },
 });
 
