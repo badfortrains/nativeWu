@@ -1,5 +1,3 @@
-
-
 'use strict';
 
 var NativeMethodsMixin = require('NativeMethodsMixin');
@@ -15,42 +13,39 @@ var merge = require('merge');
 
 
 
-var EqIcon = React.createClass({
+var TableWidthIndex = React.createClass({
   mixins: [NativeMethodsMixin],
   getDefaultProps: function(){
     return {
-      enableAnimation: false,
-      barColor: "rgb(0,0,250)",
+      dataBlob: {}  
     }
   },
   render: function() {
     return (
-      <EqView
-        style={[styles.eqIcon,this.props.style]}
-        enableAnimation={this.props.enableAnimation}
-        barColor={this.props.barColor}
+      <JumpTable
+        style={this.props.style}
+        dataBlob={this.props.dataBlob}
       />
     );
   }
 });
 
 
-var styles = StyleSheet.create({
-  eqIcon: {
-    width: 16,
-    height: 16,
-  },
-});
+// var styles = StyleSheet.create({
+//   jump: {
+//     width: 200,
+//     height: 400,
+//   },
+// });
 
 var attributes = merge(ReactIOSViewAttributes.UIView, {
-  enableAnimation: true,
-  barColor: true
+  dataBlob: true
 });
 
 
-var EqView = createReactIOSNativeComponentClass({
+var JumpTable = createReactIOSNativeComponentClass({
   validAttributes: attributes,
-  uiViewClassName: 'EqView',
+  uiViewClassName: 'JumpTable',
 });
 
-module.exports = EqIcon;
+module.exports = TableWidthIndex;

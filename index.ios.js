@@ -23,6 +23,8 @@ var {
   NavigatorIOS
 } = React;
 
+var TableWidthIndex = require("./JumpTable")
+
 var NowPlaying = React.createClass({
   render: function(){
     return (
@@ -205,14 +207,33 @@ var CategoryView = React.createClass({
       loaded: false
     };
   },
+  genDataBlob: function(artists){
+    var blob = {};
+
+    artists.forEach( (a)=>{
+      var path =  /[^/]+[.]jpeg[.]jpg$/.exec(a.thumb) || ["default-artist.png"],
+          url =  BACKEND+"/images/cache/"+path,
+          letter = a.Artist.toUpperCase()[0]
+
+
+      a.imageUrl = url
+
+      if(!blob[letter]){
+        blob[letter] = [];
+      }
+
+      blob[letter].push(a)
+    })
+    return blob;
+  },
   fetchData: function(){
     CategoryStore.getCategory(this.props.category,this.props.filter)
     .then((artists)=>{
-      console.log("artists",artists)
       this.setState({
         artists: artists,
         dataSource: this.state.dataSource.cloneWithRows(artists),
         loaded: true,
+        dataBlob: this.genDataBlob(artists)
       });
     })
     .catch((e)=>{
@@ -296,14 +317,7 @@ var CategoryView = React.createClass({
             style={styles.searchTextInput}
           />
         </View>
-        <ListView
-          dataSource={this.state.dataSource}
-          renderRow={this.renderArtist}
-          pageSize={50}
-          onEndReachedThreshold={200}
-          initialListSize={150}
-          style={styles.listView}
-        />
+        <TableWidthIndex dataBlob={this.state.dataBlob} style={styles.listContainer} />
       </View>
     );
   }

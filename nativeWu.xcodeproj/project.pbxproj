@@ -26,6 +26,8 @@
 		99A4BA331AD64CD200866594 /* EqView.m in Sources */ = {isa = PBXBuildFile; fileRef = 99A4BA321AD64CD200866594 /* EqView.m */; };
 		99A4BA411AD64DB500866594 /* EqViewManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 99A4BA401AD64DB500866594 /* EqViewManager.m */; };
 		99A4BA4E1AD86C8C00866594 /* main.jsbundle in Resources */ = {isa = PBXBuildFile; fileRef = 99A4BA4D1AD86C8C00866594 /* main.jsbundle */; };
+		99A4BA511AD8817600866594 /* JumpTable.m in Sources */ = {isa = PBXBuildFile; fileRef = 99A4BA501AD8817600866594 /* JumpTable.m */; };
+		99A4BA571AD8830000866594 /* JumpTableManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 99A4BA561AD8830000866594 /* JumpTableManager.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -132,6 +134,10 @@
 		99A4BA3F1AD64DB500866594 /* EqViewManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EqViewManager.h; sourceTree = "<group>"; };
 		99A4BA401AD64DB500866594 /* EqViewManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EqViewManager.m; sourceTree = "<group>"; };
 		99A4BA4D1AD86C8C00866594 /* main.jsbundle */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = main.jsbundle; sourceTree = "<group>"; };
+		99A4BA4F1AD8817600866594 /* JumpTable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JumpTable.h; sourceTree = "<group>"; };
+		99A4BA501AD8817600866594 /* JumpTable.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JumpTable.m; sourceTree = "<group>"; };
+		99A4BA551AD8830000866594 /* JumpTableManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JumpTableManager.h; sourceTree = "<group>"; };
+		99A4BA561AD8830000866594 /* JumpTableManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JumpTableManager.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -218,6 +224,10 @@
 				99A4BA4D1AD86C8C00866594 /* main.jsbundle */,
 				13B07FAF1A68108700A75B9A /* AppDelegate.h */,
 				13B07FB01A68108700A75B9A /* AppDelegate.m */,
+				99A4BA4F1AD8817600866594 /* JumpTable.h */,
+				99A4BA501AD8817600866594 /* JumpTable.m */,
+				99A4BA551AD8830000866594 /* JumpTableManager.h */,
+				99A4BA561AD8830000866594 /* JumpTableManager.m */,
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				13B07FB11A68108700A75B9A /* LaunchScreen.xib */,
@@ -486,6 +496,8 @@
 				13B07FBC1A68108700A75B9A /* AppDelegate.m in Sources */,
 				13B07FC11A68108700A75B9A /* main.m in Sources */,
 				99A4BA411AD64DB500866594 /* EqViewManager.m in Sources */,
+				99A4BA511AD8817600866594 /* JumpTable.m in Sources */,
+				99A4BA571AD8830000866594 /* JumpTableManager.m in Sources */,
 				99A4BA331AD64CD200866594 /* EqView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
