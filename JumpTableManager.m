@@ -9,11 +9,13 @@
 #import "JumpTableManager.h"
 #import "JumpTable.h"
 
+#import "RCTBridge.h"
+
 @implementation JumpTableManager
 
 - (UIView *)view
 {
-    return [[JumpTable alloc] init];
+    return [[JumpTable alloc] initWithEventDispatcher:self.bridge.eventDispatcher];
 }
 
 RCT_EXPORT_VIEW_PROPERTY(dataBlob, NSDictionary);

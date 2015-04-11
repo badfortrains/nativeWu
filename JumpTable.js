@@ -22,11 +22,15 @@ var TableWidthIndex = React.createClass({
       dataBlob: {}  
     }
   },
+  _onSelectionChange: function(e){
+    this.props.onSelectionChange && this.props.onSelectionChange(e);
+  },
   render: function() {
     return (
       <JumpTable
         style={this.props.style}
         dataBlob={this.props.dataBlob}
+        onSelectionChange={this._onSelectionChange}
       />
     );
   }

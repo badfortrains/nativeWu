@@ -8,19 +8,23 @@
 
 #import "JumpTable.h"
 #import <SDWebImage/UIImageView+WebCache.h>
+#import "RCTEventDispatcher.h"
+#import "UIView+React.h"
 
 @implementation JumpTable
 {
     NSArray *artistTitles;
     NSDictionary* _dataBlob;
     bool _hasResized;
+    RCTEventDispatcher *_eventDispatcher;
 }
 
 
-- (id)initWithFrame:(CGRect)frame
+- (id)initWithEventDispatcher:(RCTEventDispatcher *)eventDispatcher
 {
-    self = [super initWithFrame:frame];
+    self = [super initWithFrame:CGRectZero];
     if (self) {
+        _eventDispatcher = eventDispatcher;
         self.delegate = self;
         self.dataSource = self;
     }
@@ -52,6 +56,23 @@
     return artistTitles;
 }
 
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    
+    NSString *sectionTitle = [artistTitles objectAtIndex:indexPath.section];
+    NSArray *sectionArtists = [_dataBlob objectForKey:sectionTitle];
+    NSDictionary *artist = [sectionArtists objectAtIndex:indexPath.row];
+    
+    NSDictionary* event = @{
+                            @"row":[NSNumber numberWithInteger:indexPath.row],
+                            @"section":[artistTitles objectAtIndex:indexPath.section],
+                            @"target": self.reactTag,
+                            @"rowData":artist
+    };
+    
+    [_eventDispatcher sendInputEventWithName:@"topSelectionChange" body:event];
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
+}
+
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
     NSString *sectionTitle = [artistTitles objectAtIndex:section];
@@ -74,9 +95,6 @@
 {
 
     static NSString *simpleTableIdentifier = @"SimpleTableCell";
-    
-    NSLog(@"WIDth of cell %f",[self rectForRowAtIndexPath:indexPath].size.width);
-    NSLog(@"WIDth of self %f",self.frame.size.width);
     
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:simpleTableIdentifier];
     

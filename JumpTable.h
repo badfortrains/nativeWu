@@ -8,7 +8,11 @@
 
 #import <UIKit/UIKit.h>
 
+@class RCTEventDispatcher;
+
 @interface JumpTable : UITableView <UITableViewDelegate, UITableViewDataSource>
+
+- (instancetype)initWithEventDispatcher:(RCTEventDispatcher *)eventDispatcher NS_DESIGNATED_INITIALIZER;
 
 -(void)setDataBlob:(NSDictionary*)blob;
 

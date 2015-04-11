@@ -71,8 +71,6 @@ var AlbumView = React.createClass({
   //   renderer.removeListener("TransportState",this.updateTrack);
   // },
   updateTrack: function(track,trackState,initialLoad){
-    console.log("upadteTrack",trackState,track ? track._id : null)
-
     if(!initialLoad && trackState != "LOADING" && trackState != "PLAYING" && trackState != "PAUSED_PLAYBACK")
       return;
 
@@ -92,7 +90,6 @@ var AlbumView = React.createClass({
     })
 
     if(trackPath){
-      console.log("update width state",trackState == "PLAYING")
       newTracks[trackPath.sectionID][trackPath.rowID] = Object.assign(
         {
           nowPlaying: true,
@@ -140,15 +137,14 @@ var AlbumView = React.createClass({
   renderSection: function(sectionData,sectionID){
     var images = (this.state.images || []).filter(i => i.album == sectionID && i.size =="large");
     var url;
-    if(images[0])
+    if(images[0] && images[0].filename)
       url = BACKEND + "/images/cache/albums/" + images[0].filename;
 
-    console.log(url)
     return(
       <View style={styles.sectionHeader}>
         {url ? 
           <Image
-            source={{uri: BACKEND+"/images/cache/test.svg"}}
+            source={{uri: url}}
             style={styles.thumbnailLarge}
           />
           :
@@ -201,9 +197,6 @@ var AlbumView = React.createClass({
 var CategoryView = React.createClass({
   getInitialState: function(){
     return {
-      dataSource: new ListView.DataSource({
-        rowHasChanged: (row1, row2) => row1 !== row2,
-      }),
       loaded: false
     };
   },
@@ -231,7 +224,6 @@ var CategoryView = React.createClass({
     .then((artists)=>{
       this.setState({
         artists: artists,
-        dataSource: this.state.dataSource.cloneWithRows(artists),
         loaded: true,
         dataBlob: this.genDataBlob(artists)
       });
@@ -246,29 +238,13 @@ var CategoryView = React.createClass({
   componentDidMount: function(){
     this.fetchData();
   },
-  _pressRow: function(artist){
+  _pressRow: function(e){
+    var artist = e.nativeEvent.rowData.Artist;
     this.props.navigator.push({
       title: artist,
       component: AlbumView,
       passProps: {filter: {Artist: artist}, category: "Album"}
     })
-  },
-  renderArtist: function(artist, sectionID, rowID){
-    var path =  /[^/]+[.]jpeg[.]jpg$/.exec(artist.thumb) || ["default-artist.png"],
-        url =  BACKEND+"/images/cache/"+path;
-    return(
-      <TouchableHighlight onPress={() => this._pressRow(artist.Artist)}>
-        <View style={styles.container}>
-          <Image
-            source={{uri: url}}
-            style={styles.thumbnail}
-          />
-          <View style={styles.rightContainer}>
-            <Text style={styles.title}>{artist.Artist}</Text>
-          </View>
-        </View>
-      </TouchableHighlight>
-    )
   },
   renderError: function(){
     return (
@@ -288,14 +264,6 @@ var CategoryView = React.createClass({
       </View>
     );
   },
-  _search: function(text) {
-    var regex = new RegExp(text, 'i');
-    var filter = (row) => regex.test(row.Artist);
-
-    this.setState({
-      dataSource: this.state.dataSource.cloneWithRows(this.state.artists.filter(filter))
-    });
-  },
   render: function() {
     if(!this.state.loaded){
       return this.renderLoading();
@@ -307,17 +275,11 @@ var CategoryView = React.createClass({
 
     return (
       <View style={styles.listContainer}>
-        <View style={styles.searchRow}>
-          <TextInput
-            autoCapitalize="none"
-            autoCorrect={false}
-            clearButtonMode="always"
-            onChangeText={this._search.bind(this)}
-            placeholder="Search..."
-            style={styles.searchTextInput}
-          />
-        </View>
-        <TableWidthIndex dataBlob={this.state.dataBlob || {}} style={styles.listContainer} />
+        <TableWidthIndex 
+          dataBlob={this.state.dataBlob} 
+          style={styles.table} 
+          onSelectionChange={this._pressRow}
+        />
       </View>
     );
   }
@@ -349,6 +311,10 @@ var nativeWu = React.createClass({
 })
 
 var styles = StyleSheet.create({
+  table: {
+    marginTop: 70,
+    flex: 1,
+  },
   listContainer: {
     flex: 1
   },
@@ -440,13 +406,6 @@ var styles = StyleSheet.create({
   },
   listView: {
     backgroundColor: '#FFFFFF',
-  },
-  searchRow: {
-    backgroundColor: '#eeeeee',
-    paddingTop: 75,
-    paddingLeft: 10,
-    paddingRight: 10,
-    paddingBottom: 10,
   },
   searchTextInput: {
     backgroundColor: 'white',
