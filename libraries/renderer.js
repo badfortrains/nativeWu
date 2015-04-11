@@ -1,4 +1,4 @@
-var io = require("./socket.io-client");
+var io = require("../vendor/socket.io-client");
 var EventEmitter = require("EventEmitter");
 var BACKEND = require("./config").BACKEND;
 var AppStateIOS = require('react-native').AppStateIOS;

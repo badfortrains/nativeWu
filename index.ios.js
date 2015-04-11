@@ -3,13 +3,13 @@
  * https://github.com/facebook/react-native
  */
 'use strict';
-var BACKEND = require("./config").BACKEND;
+var BACKEND = require("./libraries/config").BACKEND;
 
 var React = require('react-native');
-var CategoryStore = require('./category')
+var CategoryStore = require('./libraries/category')
 var Icon = require('FAKIconImage');
-var EqIcon = require('./EqIcon')
-var renderer = require("./renderer")
+var EqIcon = require('./views/EqIcon')
+var renderer = require("./libraries/renderer")
 var {
   AppRegistry,
   StyleSheet,
@@ -23,7 +23,7 @@ var {
   NavigatorIOS
 } = React;
 
-var TableWidthIndex = require("./JumpTable")
+var TableWidthIndex = require("./views/JumpTable")
 
 var NowPlaying = React.createClass({
   render: function(){
