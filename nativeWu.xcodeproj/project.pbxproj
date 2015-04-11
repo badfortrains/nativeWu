@@ -29,6 +29,7 @@
 		99E8D3D11AD9898A00F43437 /* EqViewManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 99E8D3CB1AD9898A00F43437 /* EqViewManager.m */; };
 		99E8D3D21AD9898A00F43437 /* JumpTable.m in Sources */ = {isa = PBXBuildFile; fileRef = 99E8D3CD1AD9898A00F43437 /* JumpTable.m */; };
 		99E8D3D31AD9898A00F43437 /* JumpTableManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 99E8D3CF1AD9898A00F43437 /* JumpTableManager.m */; };
+		99E8D3D51AD98A2900F43437 /* default-artist.png in Resources */ = {isa = PBXBuildFile; fileRef = 99E8D3D41AD98A2900F43437 /* default-artist.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -139,6 +140,7 @@
 		99E8D3CD1AD9898A00F43437 /* JumpTable.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = JumpTable.m; path = views/native/JumpTable.m; sourceTree = "<group>"; };
 		99E8D3CE1AD9898A00F43437 /* JumpTableManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = JumpTableManager.h; path = views/native/JumpTableManager.h; sourceTree = "<group>"; };
 		99E8D3CF1AD9898A00F43437 /* JumpTableManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = JumpTableManager.m; path = views/native/JumpTableManager.m; sourceTree = "<group>"; };
+		99E8D3D41AD98A2900F43437 /* default-artist.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "default-artist.png"; path = "images/default-artist.png"; sourceTree = "<group>"; };
 		C9EF9B2D335A2C48548E4153 /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		E97D9FDCCC34E60D55658FA1 /* Pods.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.release.xcconfig; path = "Pods/Target Support Files/Pods/Pods.release.xcconfig"; sourceTree = "<group>"; };
 		ECA5C6E21CC4C55786938C25 /* Pods.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.debug.xcconfig; path = "Pods/Target Support Files/Pods/Pods.debug.xcconfig"; sourceTree = "<group>"; };
@@ -312,6 +314,7 @@
 		99E8D3C21AD9884200F43437 /* images */ = {
 			isa = PBXGroup;
 			children = (
+				99E8D3D41AD98A2900F43437 /* default-artist.png */,
 			);
 			name = images;
 			sourceTree = "<group>";
@@ -521,6 +524,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				99E8D3D51AD98A2900F43437 /* default-artist.png in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				13B07FBD1A68108700A75B9A /* LaunchScreen.xib in Resources */,
 				9938A4551AD48D1F00C71914 /* ReactNativeIconsResources.bundle in Resources */,
