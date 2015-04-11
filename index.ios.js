@@ -317,7 +317,7 @@ var CategoryView = React.createClass({
             style={styles.searchTextInput}
           />
         </View>
-        <TableWidthIndex dataBlob={this.state.dataBlob} style={styles.listContainer} />
+        <TableWidthIndex dataBlob={this.state.dataBlob || {}} style={styles.listContainer} />
       </View>
     );
   }

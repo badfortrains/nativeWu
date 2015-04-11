@@ -7,11 +7,13 @@
 //
 
 #import "JumpTable.h"
+#import <SDWebImage/UIImageView+WebCache.h>
 
 @implementation JumpTable
 {
     NSArray *artistTitles;
     NSDictionary* _dataBlob;
+    bool _hasResized;
 }
 
 
@@ -32,6 +34,22 @@
     
     [self reloadData];
     
+}
+
+-(void)layoutSubviews{
+    [super layoutSubviews];
+    
+    if(!_hasResized){
+        _hasResized = true;
+        CGRect jumpFrame = self.frame;
+        self.frame = CGRectZero;
+        self.frame = jumpFrame;
+    }
+}
+
+- (NSArray *)sectionIndexTitlesForTableView:(UITableView *)tableView
+{
+    return artistTitles;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
@@ -57,6 +75,9 @@
 
     static NSString *simpleTableIdentifier = @"SimpleTableCell";
     
+    NSLog(@"WIDth of cell %f",[self rectForRowAtIndexPath:indexPath].size.width);
+    NSLog(@"WIDth of self %f",self.frame.size.width);
+    
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:simpleTableIdentifier];
     
     if (cell == nil) {
@@ -68,14 +89,9 @@
     NSArray *sectionArtists = [_dataBlob objectForKey:sectionTitle];
     NSDictionary *artist = [sectionArtists objectAtIndex:indexPath.row];
  
-    NSURL *imageURL = [NSURL URLWithString:artist[@"imageUrl"]];
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
-        NSData *imageData = [NSData dataWithContentsOfURL:imageURL];
-        
-        dispatch_async(dispatch_get_main_queue(), ^{
-            cell.imageView.image = [UIImage imageWithData:imageData];
-        });
-    });
+    // Here we use the new provided sd_setImageWithURL: method to load the web image
+    [cell.imageView sd_setImageWithURL:[NSURL URLWithString:artist[@"imageUrl"]]
+                      placeholderImage:[UIImage imageNamed:@"default-artist.png"]];
     
     cell.textLabel.text = (NSString*)artist[@"Artist"];
     

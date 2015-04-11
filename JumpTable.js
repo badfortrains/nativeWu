@@ -10,6 +10,8 @@ var View = require('View');
 var createReactIOSNativeComponentClass = require('createReactIOSNativeComponentClass');
 var merge = require('merge');
 
+var deepDiffer = require('deepDiffer');
+
 
 
 
@@ -39,7 +41,7 @@ var TableWidthIndex = React.createClass({
 // });
 
 var attributes = merge(ReactIOSViewAttributes.UIView, {
-  dataBlob: true
+  dataBlob: {diff: deepDiffer}
 });
 
 
