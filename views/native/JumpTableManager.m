@@ -13,6 +13,8 @@
 
 @implementation JumpTableManager
 
+RCT_EXPORT_MODULE();
+
 - (UIView *)view
 {
     return [[JumpTable alloc] initWithEventDispatcher:self.bridge.eventDispatcher];

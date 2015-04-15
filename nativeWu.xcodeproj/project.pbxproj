@@ -22,8 +22,8 @@
 		146834051AC3E58100842450 /* libReact.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 146834041AC3E56700842450 /* libReact.a */; };
 		832341BD1AAA6AB300B99B32 /* libRCTText.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 832341B51AAA6A8300B99B32 /* libRCTText.a */; };
 		8BB1988847E3825674654ACE /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = C9EF9B2D335A2C48548E4153 /* libPods.a */; };
-		9938A4541AD48CB600C71914 /* libReactNativeIcons.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9938A4511AD48C8C00C71914 /* libReactNativeIcons.a */; };
-		9938A4551AD48D1F00C71914 /* ReactNativeIconsResources.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 9938A4531AD48C8C00C71914 /* ReactNativeIconsResources.bundle */; };
+		99828B4F1ADE2A6B00EDD871 /* foundation-icons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 99828B4E1ADE2A6B00EDD871 /* foundation-icons.ttf */; };
+		99828B501ADE2AE500EDD871 /* libReactNativeIcons.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 99828B4D1ADE28A600EDD871 /* libReactNativeIcons.a */; };
 		99A4BA4E1AD86C8C00866594 /* main.jsbundle in Resources */ = {isa = PBXBuildFile; fileRef = 99A4BA4D1AD86C8C00866594 /* main.jsbundle */; };
 		99E8D3D01AD9898A00F43437 /* EqView.m in Sources */ = {isa = PBXBuildFile; fileRef = 99E8D3C91AD9898A00F43437 /* EqView.m */; };
 		99E8D3D11AD9898A00F43437 /* EqViewManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 99E8D3CB1AD9898A00F43437 /* EqViewManager.m */; };
@@ -96,19 +96,12 @@
 			remoteGlobalIDString = 58B5119B1A9E6C1200147676;
 			remoteInfo = RCTText;
 		};
-		9938A4501AD48C8C00C71914 /* PBXContainerItemProxy */ = {
+		99828B4C1ADE28A600EDD871 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
-			containerPortal = 9938A44B1AD48C8C00C71914 /* ReactNativeIcons.xcodeproj */;
+			containerPortal = 99828B481ADE28A600EDD871 /* ReactNativeIcons.xcodeproj */;
 			proxyType = 2;
 			remoteGlobalIDString = 2F5A3EB81ACDBF8000439386;
 			remoteInfo = ReactNativeIcons;
-		};
-		9938A4521AD48C8C00C71914 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 9938A44B1AD48C8C00C71914 /* ReactNativeIcons.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 2F4DA3241ACE21C300CC8346;
-			remoteInfo = ReactNativeIconsResources;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -130,7 +123,8 @@
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = iOS/main.m; sourceTree = "<group>"; };
 		146833FF1AC3E56700842450 /* React.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = React.xcodeproj; path = "node_modules/react-native/React/React.xcodeproj"; sourceTree = "<group>"; };
 		832341B01AAA6A8300B99B32 /* RCTText.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTText.xcodeproj; path = "node_modules/react-native/Libraries/Text/RCTText.xcodeproj"; sourceTree = "<group>"; };
-		9938A44B1AD48C8C00C71914 /* ReactNativeIcons.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = ReactNativeIcons.xcodeproj; path = "node_modules/react-native-icons/ios/ReactNativeIcons.xcodeproj"; sourceTree = "<group>"; };
+		99828B481ADE28A600EDD871 /* ReactNativeIcons.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = ReactNativeIcons.xcodeproj; path = "node_modules/react-native-icons/ios/ReactNativeIcons.xcodeproj"; sourceTree = "<group>"; };
+		99828B4E1ADE2A6B00EDD871 /* foundation-icons.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "foundation-icons.ttf"; path = "node_modules/react-native-icons/ios/Libraries/FontAwesomeKit/foundation-icons.ttf"; sourceTree = "<group>"; };
 		99A4BA4D1AD86C8C00866594 /* main.jsbundle */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = main.jsbundle; sourceTree = "<group>"; };
 		99E8D3C81AD9898A00F43437 /* EqView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = EqView.h; path = views/native/EqView.h; sourceTree = "<group>"; };
 		99E8D3C91AD9898A00F43437 /* EqView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = EqView.m; path = views/native/EqView.m; sourceTree = "<group>"; };
@@ -151,7 +145,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9938A4541AD48CB600C71914 /* libReactNativeIcons.a in Frameworks */,
 				00481BEA1AC0C89D00671115 /* libicucore.dylib in Frameworks */,
 				146834051AC3E58100842450 /* libReact.a in Frameworks */,
 				00481BE81AC0C86700671115 /* libRCTWebSocketDebugger.a in Frameworks */,
@@ -163,6 +156,7 @@
 				00C302EA1ABCBA2D00DB3ED1 /* libRCTVibration.a in Frameworks */,
 				832341BD1AAA6AB300B99B32 /* libRCTText.a in Frameworks */,
 				8BB1988847E3825674654ACE /* libPods.a in Frameworks */,
+				99828B501ADE2AE500EDD871 /* libReactNativeIcons.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -260,7 +254,7 @@
 		832341AE1AAA6A7D00B99B32 /* Libraries */ = {
 			isa = PBXGroup;
 			children = (
-				9938A44B1AD48C8C00C71914 /* ReactNativeIcons.xcodeproj */,
+				99828B481ADE28A600EDD871 /* ReactNativeIcons.xcodeproj */,
 				00481BE91AC0C89D00671115 /* libicucore.dylib */,
 				00C302A71ABCB8CE00DB3ED1 /* RCTActionSheet.xcodeproj */,
 				00C302AF1ABCB8E700DB3ED1 /* RCTAdSupport.xcodeproj */,
@@ -286,6 +280,7 @@
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
+				99828B4E1ADE2A6B00EDD871 /* foundation-icons.ttf */,
 				13B07FAE1A68108700A75B9A /* nativeWu */,
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				83CBBA001A601CBA00E9B192 /* Products */,
@@ -302,11 +297,10 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		9938A44C1AD48C8C00C71914 /* Products */ = {
+		99828B491ADE28A600EDD871 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				9938A4511AD48C8C00C71914 /* libReactNativeIcons.a */,
-				9938A4531AD48C8C00C71914 /* ReactNativeIconsResources.bundle */,
+				99828B4D1ADE28A600EDD871 /* libReactNativeIcons.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -428,8 +422,8 @@
 					ProjectRef = 146833FF1AC3E56700842450 /* React.xcodeproj */;
 				},
 				{
-					ProductGroup = 9938A44C1AD48C8C00C71914 /* Products */;
-					ProjectRef = 9938A44B1AD48C8C00C71914 /* ReactNativeIcons.xcodeproj */;
+					ProductGroup = 99828B491ADE28A600EDD871 /* Products */;
+					ProjectRef = 99828B481ADE28A600EDD871 /* ReactNativeIcons.xcodeproj */;
 				},
 			);
 			projectRoot = "";
@@ -503,18 +497,11 @@
 			remoteRef = 832341B41AAA6A8300B99B32 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		9938A4511AD48C8C00C71914 /* libReactNativeIcons.a */ = {
+		99828B4D1ADE28A600EDD871 /* libReactNativeIcons.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
 			path = libReactNativeIcons.a;
-			remoteRef = 9938A4501AD48C8C00C71914 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		9938A4531AD48C8C00C71914 /* ReactNativeIconsResources.bundle */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.cfbundle;
-			path = ReactNativeIconsResources.bundle;
-			remoteRef = 9938A4521AD48C8C00C71914 /* PBXContainerItemProxy */;
+			remoteRef = 99828B4C1ADE28A600EDD871 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 /* End PBXReferenceProxy section */
@@ -524,10 +511,10 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				99828B4F1ADE2A6B00EDD871 /* foundation-icons.ttf in Resources */,
 				99E8D3D51AD98A2900F43437 /* default-artist.png in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				13B07FBD1A68108700A75B9A /* LaunchScreen.xib in Resources */,
-				9938A4551AD48D1F00C71914 /* ReactNativeIconsResources.bundle in Resources */,
 				99A4BA4E1AD86C8C00866594 /* main.jsbundle in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -600,11 +587,12 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = ECA5C6E21CC4C55786938C25 /* Pods.debug.xcconfig */;
 			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				HEADER_SEARCH_PATHS = (
-					"$(inherited)",
-					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
-					"$(SRCROOT)/node_modules/react-native/React/**",
+					"$(inherited)/**",
+					"$(SRCROOT)/../../react-native/React/**",
+					"/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include/**",
 				);
 				INFOPLIST_FILE = "$(SRCROOT)/iOS/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -618,11 +606,12 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = E97D9FDCCC34E60D55658FA1 /* Pods.release.xcconfig */;
 			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				HEADER_SEARCH_PATHS = (
-					"$(inherited)",
-					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
-					"$(SRCROOT)/node_modules/react-native/React/**",
+					"$(inherited)/**",
+					"/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include/**",
+					"$(SRCROOT)/../../react-native/React/**",
 				);
 				INFOPLIST_FILE = "$(SRCROOT)/iOS/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";

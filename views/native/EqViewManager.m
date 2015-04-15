@@ -11,6 +11,8 @@
 
 @implementation EqViewManager
 
+RCT_EXPORT_MODULE();
+
 - (UIView *)view
 {
     return [[EqView alloc] init];
