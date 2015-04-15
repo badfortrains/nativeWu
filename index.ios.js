@@ -12,13 +12,21 @@ var {
 } = React;
 var CategoryView = require("./views/categoryView")
 var NowPlaying = require("./views/nowPlaying")
-
+var Playlist = require("./views/playlist")
 
 var nativeWu = React.createClass({
+  _pressQueue: function(){
+    this.refs.navigator.push({
+      title: "Queue",
+      component: Playlist,
+    })   
+  },
   _pressNowPlaying: function(){
     this.refs.navigator.push({
       title: "Now Playing",
-      component: NowPlaying
+      component: NowPlaying,
+      rightButtonTitle: "Queue",
+      onRightButtonPress: this._pressQueue
     })
   },
   render: function(){

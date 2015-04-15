@@ -2,6 +2,7 @@ var io = require("../vendor/socket.io-client");
 var EventEmitter = require("wolfy87-eventemitter");
 var BACKEND = require("./config").BACKEND;
 var AppStateIOS = require('react-native').AppStateIOS;
+var _ = require("underscore")
 
 var serializeFilter = function(obj){
   var str = [];
@@ -36,6 +37,13 @@ var RendererStore = Object.assign(new EventEmitter(),{
       			this.emit("TransportState",this.playerState.currentPlayingTrack,this.playerState.TransportState)
       		}
     	});
+
+    	this.socket.on("avrStateChange",(state)=>{
+    		this.avrState = state;
+    		this.emit("avrStateChange",state)
+    	})
+
+    	this.socket.emit("avrState")
 
     	AppStateIOS.addEventListener('change', this._handleStateChange.bind(this));
 	},
@@ -76,6 +84,12 @@ var RendererStore = Object.assign(new EventEmitter(),{
 	currentTrackID: function(){
 		return this.playerState.currentPlayingTrack ? this.playerState.currentPlayingTrack.id : null;
 	},
+	sendAvrCommand: function(command,arg){
+		this.socket.emit("avrCommand",command,arg);
+	},
+	playPlaylistTrack: function(id,playlistID){
+		this.socket.emit("playListTrack",id,playlistID);
+	},
 	_handleStateChange: function(currentAppState){
 		console.log(currentAppState)
 		console.log("socket is disconnected:" ,this.socket.disconnected)
@@ -101,7 +115,7 @@ var RendererStore = Object.assign(new EventEmitter(),{
 			}
 		})
 		.catch((err) => console.log("ERR",err));
-	}
+	},
 })
 
 RendererStore.connect();

@@ -20,7 +20,7 @@ var serializeFilter = function(obj){
 
 var CategoryStore = {
 	getCategory: function(category,filter){
-		var url = BACKEND + "/api/categories/details/"+category
+		var url = BACKEND + "/api/categories/details/"+category;
 
 		if(filter){
 			url += "?" + serializeFilter(filter)
@@ -29,7 +29,13 @@ var CategoryStore = {
 		return fetch(url).then(res => {
 			return res.json().then( d =>{ return d.docs });
 		})
-	}
+	},
+  getPlaylist: function(id){
+    var url = BACKEND + "/api/playlists/"+id;
+    return fetch(url).then(res => {
+      return res.json()
+    })
+  }
 } 
 
 

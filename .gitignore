@@ -1,5 +1,4 @@
 node_modules/
-
-
+xcuserdata/**
 #Xcode
 *.xcuserstate

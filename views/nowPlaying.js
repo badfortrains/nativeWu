@@ -2,6 +2,8 @@ var BACKEND = require("../libraries/config").BACKEND;
 var React = require('react-native');
 var renderer = require("../libraries/renderer")
 var Icon = require('FAKIconImage');
+var VolumeControl = require("./volumeControl")
+var Dimensions = require("Dimensions")
 
 var {
   StyleSheet,
@@ -21,7 +23,7 @@ var NowPlaying = React.createClass({
   getInitialState: function(){
     return {
       track: renderer.playerState.currentPlayingTrack,
-      TransportState: renderer.playerState.TransportState
+      TransportState: renderer.playerState.TransportState,
     }
   },
   componentDidMount: function(){
@@ -57,13 +59,19 @@ var NowPlaying = React.createClass({
       return this.renderNoTrack();
 
     var imageUrl = this.getBestImage(),
-        track = this.state.track;
-    console.log(imageUrl)
+        track = this.state.track,
+        width = Dimensions.get("window").width - 16,
+        height = Dimensions.get("window").height;
 
     return (
       <View style={styles.playingContainer}> 
-        { imageUrl ?
-          <Image source={{uri: imageUrl}} style={[styles.flex1,styles.albumArt]} />
+        { imageUrl && height > 400 ?
+          <Image source={{uri: imageUrl}} 
+                  style={[styles.flex1,{
+                    width: width,
+                    height: height,
+                  }]} 
+          />
           :
           <View style={[styles.placeholder,styles.flex1]}></View>
         }
@@ -96,6 +104,7 @@ var NowPlaying = React.createClass({
               />
             </TouchableOpacity>
           </View>
+          <VolumeControl />
         </View>
       </View>
     )
@@ -127,10 +136,9 @@ var styles = StyleSheet.create({
   },
   flex1: {
     flex: 1,
-    borderColor: "black",
-    borderWidth: 1,
   },
   albumArt: {
+
   },
   placeholder: {
     backgroundColor: "#C0C0C0",
@@ -142,11 +150,15 @@ var styles = StyleSheet.create({
     alignItems: 'center',
   },
   title:{
-    fontSize: 25,
-    fontWeight: "700"
+    marginTop: 16,
+    fontSize: 18,
+    marginBottom: 8,
+    textAlign: "center",
   },
   info: {
-    fontSize: 25
+    textAlign: "center",
+    fontSize: 16,
+    fontWeight: "700",
   },
   IconHolder: {
     flexDirection: "row",
@@ -157,7 +169,7 @@ var styles = StyleSheet.create({
     height: 30,
     marginLeft: 16,
     marginRight: 16,
-  }
+  },
  })
 
 module.exports = NowPlaying;
