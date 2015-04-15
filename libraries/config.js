@@ -1,3 +1,3 @@
 module.exports = {
-	BACKEND: "http://192.168.1.129:4000"
+	BACKEND: "http://wupnp.com"
 }

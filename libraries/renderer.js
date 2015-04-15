@@ -1,5 +1,5 @@
 var io = require("../vendor/socket.io-client");
-var EventEmitter = require("EventEmitter");
+var EventEmitter = require("wolfy87-eventemitter");
 var BACKEND = require("./config").BACKEND;
 var AppStateIOS = require('react-native').AppStateIOS;
 
@@ -63,6 +63,15 @@ var RendererStore = Object.assign(new EventEmitter(),{
 				.done()
 			)
 		}
+	},
+	togglePlay: function(){
+		if(this.playerState.TransportState == "PLAYING")
+			this.socket.emit("pause")
+		else
+			this.socket.emit("play")
+	},
+	playNext: function(){
+		this.socket.emit("next")
 	},
 	currentTrackID: function(){
 		return this.playerState.currentPlayingTrack ? this.playerState.currentPlayingTrack.id : null;

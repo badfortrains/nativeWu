@@ -48,9 +48,9 @@ var AlbumTracks = React.createClass({
     this.fetchData();
     renderer.addListener("TransportState",this.updateTrack);
   },
-  // componentWillUnmount: function(){
-  //   renderer.removeListener("TransportState",this.updateTrack);
-  // },
+  componentWillUnmount: function(){
+    renderer.removeListener("TransportState",this.updateTrack);
+  },
   updateTrack: function(track,trackState,initialLoad){
     if(!initialLoad && trackState != "LOADING" && trackState != "PLAYING" && trackState != "PAUSED_PLAYBACK")
       return;

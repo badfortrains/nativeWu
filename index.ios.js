@@ -10,7 +10,8 @@ var {
   StyleSheet,
   NavigatorIOS
 } = React;
-var CategoryView = require('./views/categoryView')
+var CategoryView = require("./views/categoryView")
+var NowPlaying = require("./views/nowPlaying")
 
 
 var nativeWu = React.createClass({
