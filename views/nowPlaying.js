@@ -45,13 +45,13 @@ var NowPlaying = React.createClass({
         imageObj = megaImages[0] || images[0];
 
 
-    return BACKEND + "/images/cache/albums/" + imageObj.filename;
+    return imageObj ? (BACKEND + "/images/cache/albums/" + imageObj.filename) : null;
   },
   pressIcon: function(name){
     if(name == "play"){
       renderer.togglePlay();
     }else if(name == "next"){
-      render.playNext();
+      renderer.playNext();
     }
   },
   render: function(){
@@ -68,8 +68,9 @@ var NowPlaying = React.createClass({
         { imageUrl && height > 400 ?
           <Image source={{uri: imageUrl}} 
                   style={[styles.flex1,{
-                    width: width,
-                    height: height,
+                    alignSelf: "center",
+                    width: Math.min(width,400),
+                    height: Math.min(width,400),
                   }]} 
           />
           :
