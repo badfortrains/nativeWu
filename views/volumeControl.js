@@ -48,7 +48,7 @@ var VolumeControl = React.createClass({
     return (
       <View style={styles.sliderHolder}>
         <View style={styles.sliderRow}>
-          <TouchableOpacity onPress={()=> this.togglePower("z2Power")}>
+          <TouchableOpacity onPress={()=> this.togglePower("z1Power")}>
             <Text style={[styles.power,z1Power ? styles.poweredOn : null]}>Zone 1</Text>
           </TouchableOpacity>
           <SliderIOS  style={styles.slider}
