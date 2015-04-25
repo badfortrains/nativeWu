@@ -5,6 +5,8 @@ var CategoryStore = require('../libraries/category')
 var renderer = require("../libraries/renderer")
 var EqIcon = require('./EqIcon')
 var Icon = require('FAKIconImage');
+var Modal = require('./modal');
+var DeviceHeight = require('Dimensions').get('window').height;
 
 var {
   StyleSheet,
@@ -16,6 +18,7 @@ var {
   View,
 } = React;
 
+
 var AlbumTracks = React.createClass({
   getInitialState: function(){
     return {
@@ -25,6 +28,8 @@ var AlbumTracks = React.createClass({
       }),
       loaded: false,
       animation: true,
+      showModal: false,
+      modalTop: 0,
     }; 
   },
   fetchData: function(){
@@ -92,6 +97,15 @@ var AlbumTracks = React.createClass({
     renderer.playAlbumTracks(this.props.filter.Artist,sectionID,rowID);
     this.updateTrack({_id:id},"LOADING")
   },
+  showModal: function(node,trackID,sectionID){
+    node.measure((x,y,w,h,px,py) =>{
+      this.setState({
+        showModal: true,
+        modalFilter: sectionID ? {Album: sectionID, Artist: this.props.filter.Artist} : {_id: trackID},
+        modalTop: py
+      }) 
+    });
+  },
   renderTrack: function(track, sectionID, rowID){
     return(
         <TouchableHighlight onPress={() => this.pressTrack(sectionID, rowID, track._id)}>
@@ -103,7 +117,15 @@ var AlbumTracks = React.createClass({
                 :
                 <Text style={styles.trackNumber}>{track.TrackNumber}</Text>
               }
-              <Text style={styles.title}>{track.Title}</Text>
+              <Text numberOfLines={1} style={styles.title}>{track.Title}</Text>
+              <TouchableOpacity onPress={(node)=> this.showModal(node,track._id)} style={styles.moreHolder}>
+                <Icon
+                  name='ion|ios-more-outline'
+                  size={24}
+                  color='black'
+                  style={styles.moreIcon}
+                />
+              </TouchableOpacity>
             </View>
           </View>
         </TouchableHighlight>
@@ -133,14 +155,24 @@ var AlbumTracks = React.createClass({
         }
         <View style={styles.rightContainer} >
           <Text style={styles.sectionTitle} >{sectionID}</Text>
-          <TouchableOpacity onPress={()=> this.pressIcon(sectionID)}>
-            <Icon
-              name='foundation|play-circle'
-              size={45}
-              color='#AB3C3C'
-              style={styles.largeIcon}
-            />
-          </TouchableOpacity>
+          <View style={styles.sectionButtons}>
+            <TouchableOpacity onPress={(node)=> this.pressIcon(sectionID)}>
+              <Icon
+                name='foundation|play-circle'
+                size={45}
+                color='#AB3C3C'
+                style={styles.largeIcon}
+              />
+            </TouchableOpacity>
+            <TouchableOpacity onPress={(node)=> this.showModal(node,null,sectionID)}>
+              <Icon
+                name='ion|ios-more-outline'
+                size={45}
+                color='#AB3C3C'
+                style={styles.largeIcon}
+              />
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
     )
@@ -154,6 +186,19 @@ var AlbumTracks = React.createClass({
       </View>
     );
   },
+  showModalTransition: function(transition) {
+    transition('opacity', {duration: 200, begin: 0, end: 1});
+    transition('height', {duration: 200, begin: DeviceHeight * 2, end: DeviceHeight});
+  },
+  hideModalTransition: function(transition) {
+    transition('height', {duration: 200, begin: DeviceHeight, end: DeviceHeight * 2, reset: true});
+    transition('opacity', {duration: 200, begin: 1, end: 0});
+  },
+  closeModal: function(){
+    this.setState({
+      showModal: false
+    })
+  },
   render: function() {
     if(!this.state.loaded)
       return this.renderLoading();
@@ -165,15 +210,37 @@ var AlbumTracks = React.createClass({
           renderRow={this.renderTrack}
           renderSectionHeader={this.renderSection}
           pageSize={50}
+          ref={"list"}
           initialListSize={150}
           style={styles.listView}
         />
+        {this.state.showModal ? 
+          <Modal  top={this.state.modalTop || 0} 
+                  onClose={this.closeModal}
+                  filter={this.state.modalFilter}
+          />
+          :
+          null
+        }
+
       </View>
     );
   }
 })
 
 var styles = StyleSheet.create({
+  addView: {
+    marginLeft: 48,
+    marginRight: 48,
+    padding: 16,
+    borderRadius: 3,
+    borderWidth: 1,
+    borderColor: "rgba(0,0,0,0.3)",
+  },
+  addOption: {
+    fontSize: 16,
+    paddingBottom: 8,
+  },
   listContainer: {
     flex: 1
   },
@@ -220,6 +287,7 @@ var styles = StyleSheet.create({
     paddingBottom: 16,
     paddingTop: 16,
     flexDirection: "row",
+    overflow: "hidden",
   },
   rightContainer: {
     flex: 1,
@@ -228,7 +296,8 @@ var styles = StyleSheet.create({
     marginRight: 8
   },
   title: {
-    fontSize: 16,
+    flex: 1,
+    fontSize: 14,
     marginLeft: 16,
     fontWeight: "600",
     textAlign: 'left',
@@ -254,6 +323,16 @@ var styles = StyleSheet.create({
     width: 45,
     height: 45,
     marginLeft: 8,
+  },
+  moreHolder: {
+    alignSelf: "flex-end",
+  },
+  moreIcon: {
+    height: 24,
+    width: 24,
+  },
+  sectionButtons: {
+    flexDirection: "row",
   },
 });
 

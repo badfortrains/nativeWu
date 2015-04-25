@@ -47,20 +47,14 @@ var RendererStore = Object.assign(new EventEmitter(),{
 
     	AppStateIOS.addEventListener('change', this._handleStateChange.bind(this));
 	},
-	playAlbumTracks: function(artist,album,trackNumber,id){
-		var uuid = this.uuid,
-			filter = {
-				Artist: artist,
-				Album: album,
-				TrackNumberGT: trackNumber,
-			}
+	_play: function(filter,verb){
+		var uuid = this.uuid;
 
 		if(!uuid){
 			return Promise.reject(new Error("No renderer selected"));
 		}else{
-			console.log("play tracks")
 			return (
-				fetch(BACKEND+"/api/renderers/"+uuid+"/playNow",{
+				fetch(BACKEND+"/api/renderers/"+uuid+"/"+verb,{
 					method: "put",
 					body: serializeFilter(filter),
 					headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -68,8 +62,36 @@ var RendererStore = Object.assign(new EventEmitter(),{
 				.then((res) =>  res.json())
 				.then((info) => console.log("got info",info))
 				.catch((err)=> console.log("play album err",err))
-				.done()
 			)
+		}
+	},
+	playAlbumTracks: function(artist,album,trackNumber,id){
+		var filter = {
+				Artist: artist,
+				Album: album,
+				TrackNumberGT: trackNumber,
+			}
+
+		return this._play(filter,"playNow");
+	},
+	queueNext: function(filter){
+		return this._play(filter,"playNext");
+	},
+	addToQueue: function(filter){
+		var url = BACKEND + "/api/playlists/" + this.playerState.quickList
+
+		if(!this.playerState.quickList){
+			return Promise.reject(new Error("No renderer selected"));
+		}else{
+			return fetch(url,{
+				method: "put",
+				body: serializeFilter(filter),
+				headers: { "Content-Type": "application/x-www-form-urlencoded" },
+			})
+			.then((res) => {
+				return res.json()
+			})
+			.catch((err)=> console.log("play addToQueue err",err))
 		}
 	},
 	togglePlay: function(){
