@@ -3,6 +3,7 @@ var EventEmitter = require("wolfy87-eventemitter");
 var BACKEND = require("./config").BACKEND;
 var AppStateIOS = require('react-native').AppStateIOS;
 var _ = require("underscore")
+var toastMaster = require("./toastMaster")
 
 var serializeFilter = function(obj){
   var str = [];
@@ -60,7 +61,10 @@ var RendererStore = Object.assign(new EventEmitter(),{
 					headers: { "Content-Type": "application/x-www-form-urlencoded" },
 				})
 				.then((res) =>  res.json())
-				.then((info) => console.log("got info",info))
+				.then((info) =>{
+					toastMaster.message(info.added +' tracks added to queue')
+					return info;
+				})
 				.catch((err)=> console.log("play album err",err))
 			)
 		}

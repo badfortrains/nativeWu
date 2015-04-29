@@ -1117,7 +1117,7 @@ if (!String.prototype.repeat) {
   }
 })();
 
-__d('nativeWu/index.ios',["react-native/Libraries/react-native/react-native","nativeWu/views/categoryView","nativeWu/views/nowPlaying","nativeWu/views/playlist"],function(global, require, requireDynamic, requireLazy, module, exports) {  /**
+__d('nativeWu/index.ios',["react-native/Libraries/react-native/react-native","nativeWu/views/categoryView","nativeWu/views/nowPlaying","nativeWu/views/playlist","nativeWu/views/toast","nativeWu/libraries/toastMaster"],function(global, require, requireDynamic, requireLazy, module, exports) {  /**
  * Sample React Native App
  * https://github.com/facebook/react-native
  */
@@ -1128,10 +1128,13 @@ var $__0=
   
   
   
-  React,AppRegistry=$__0.AppRegistry,StyleSheet=$__0.StyleSheet,NavigatorIOS=$__0.NavigatorIOS;
+  
+  React,AppRegistry=$__0.AppRegistry,StyleSheet=$__0.StyleSheet,NavigatorIOS=$__0.NavigatorIOS,View=$__0.View;
 var CategoryView = require("nativeWu/views/categoryView")
 var NowPlaying = require("nativeWu/views/nowPlaying")
 var Playlist = require("nativeWu/views/playlist")
+var Toast = require("nativeWu/views/toast")
+var toastMaster = require('nativeWu/libraries/toastMaster')
 
 var nativeWu = React.createClass({displayName: "nativeWu",
   _pressQueue: function(){
@@ -1150,17 +1153,20 @@ var nativeWu = React.createClass({displayName: "nativeWu",
   },
   render: function(){
     return (
-      React.createElement(NavigatorIOS, {
-        ref: "navigator", 
-        style: styles.listContainer, 
-        tintColor: "#AB3C3C", 
-        initialRoute: {
-          title: 'Artist',
-          component: CategoryView,
-          rightButtonTitle: "Now Playing",
-          onRightButtonPress: this._pressNowPlaying,
-          passProps: {category: "Artist"}
-        }}
+      React.createElement(View, {style: styles.listContainer}, 
+        React.createElement(NavigatorIOS, {
+          ref: "navigator", 
+          style: styles.listContainer, 
+          tintColor: "#AB3C3C", 
+          initialRoute: {
+            title: 'Artist',
+            component: CategoryView,
+            rightButtonTitle: "Now Playing",
+            onRightButtonPress: this._pressNowPlaying,
+            passProps: {category: "Artist"}
+          }}
+        ), 
+        React.createElement(Toast, null)
       )
     )
   }
@@ -39683,11 +39689,12 @@ var styles = StyleSheet.create({
 
 module.exports = AlbumTracks;
 });
-__d('nativeWu/libraries/renderer',["nativeWu/vendor/socket.io-client","wolfy87-eventemitter/EventEmitter","nativeWu/libraries/config","react-native/Libraries/react-native/react-native","underscore/underscore"],function(global, require, requireDynamic, requireLazy, module, exports) {  var io = require("nativeWu/vendor/socket.io-client");
+__d('nativeWu/libraries/renderer',["nativeWu/vendor/socket.io-client","wolfy87-eventemitter/EventEmitter","nativeWu/libraries/config","react-native/Libraries/react-native/react-native","underscore/underscore","nativeWu/libraries/toastMaster"],function(global, require, requireDynamic, requireLazy, module, exports) {  var io = require("nativeWu/vendor/socket.io-client");
 var EventEmitter = require("wolfy87-eventemitter/EventEmitter");
 var BACKEND = require("nativeWu/libraries/config").BACKEND;
 var AppStateIOS = require('react-native/Libraries/react-native/react-native').AppStateIOS;
 var _ = require("underscore/underscore")
+var toastMaster = require("nativeWu/libraries/toastMaster")
 
 var serializeFilter = function(obj){
   var str = [];
@@ -39745,7 +39752,10 @@ var RendererStore = Object.assign(new EventEmitter(),{
 					headers: { "Content-Type": "application/x-www-form-urlencoded" },
 				})
 				.then(function(res)   {return res.json();})
-				.then(function(info)  {return console.log("got info",info);})
+				.then(function(info) {
+					toastMaster.message(info.added +' tracks added to queue')
+					return info;
+				})
 				["catch"](function(err) {return console.log("play album err",err);})
 			)
 		}
@@ -48664,6 +48674,40 @@ __d('underscore/underscore',[],function(global, require, requireDynamic, require
   }
 }.call(this));
 });
+__d('nativeWu/libraries/toastMaster',["wolfy87-eventemitter/EventEmitter"],function(global, require, requireDynamic, requireLazy, module, exports) {  var EventEmitter = require("wolfy87-eventemitter/EventEmitter");
+
+var RendererStore = Object.assign(new EventEmitter(),{
+	_queue: [],
+	_timer: null,
+	_removeCurrent: function(){
+		this._queue.shift();
+		if(this._queue[0]){
+			this._timer = setTimeout(this._removeCurrent.bind(this),2000)	
+		}else{
+			this._timer = null;
+		}
+		this.emit("update");
+	},
+	_queueUpdate: function(){
+		if(!this._timer){
+			this._timer = setTimeout(this._removeCurrent.bind(this),2000)
+			this.emit("update");
+		}
+	},
+	getMessage: function(){
+		console.log("get :" + this._queue[0])
+		return this._queue[0];
+	},
+	message: function(text){
+		console.log(text,this._queue.length);
+		this._queue.push(text);
+		this._queueUpdate();
+	},
+});
+
+
+module.exports = RendererStore;
+});
 __d('nativeWu/views/EqIcon',["NativeMethodsMixin","ReactPropTypes","React","ReactIOSViewAttributes","StyleSheet","View","createReactIOSNativeComponentClass","merge"],function(global, require, requireDynamic, requireLazy, module, exports) {  
 
 'use strict';
@@ -49544,6 +49588,67 @@ var styles = StyleSheet.create({
 });
 
 module.exports = Playlist;
+});
+__d('nativeWu/views/toast',["react-native/Libraries/react-native/react-native","nativeWu/libraries/toastMaster"],function(global, require, requireDynamic, requireLazy, module, exports) {  var React = require('react-native/Libraries/react-native/react-native');
+var toastMaster = require("nativeWu/libraries/toastMaster");
+
+var $__0=
+	
+	
+  React,View=$__0.View,Text=$__0.Text;
+
+var Toast = React.createClass({displayName: "Toast",
+	getInitialState: function(){
+		return {
+			message: null
+		}
+	},
+	getMessage: function(m){
+		this.setState({
+			message: toastMaster.getMessage()
+		})
+	},
+	componentDidMount: function(){
+		toastMaster.on("update",this.getMessage);
+	},
+	renderMessage: function(m){
+		return (
+			React.createElement(View, {style: styles.toast}, 
+				React.createElement(Text, {style: styles.toastText}, m)
+			)
+		)
+	},
+	render: function(){
+		return (
+			React.createElement(View, null, 
+				
+					this.state.message ? 
+					this.renderMessage(this.state.message)
+					:
+					null
+				
+
+			)
+		)
+	}
+})
+
+var styles = {
+	toast: {
+		position: "absolute",
+		bottom: 0,
+		left: 0,
+		right: 0,
+		backgroundColor: "black",
+	},
+	toastText: {
+		fontSize: 16,
+		padding: 16,
+		color: "white",
+	}
+}
+
+module.exports = Toast;
 });
 ;require("nativeWu/index.ios");
 //@ sourceMappingURL=/index.ios.map

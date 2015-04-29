@@ -8,11 +8,14 @@ var React = require('react-native');
 var {
   AppRegistry,
   StyleSheet,
-  NavigatorIOS
+  NavigatorIOS,
+  View,
 } = React;
 var CategoryView = require("./views/categoryView")
 var NowPlaying = require("./views/nowPlaying")
 var Playlist = require("./views/playlist")
+var Toast = require("./views/toast")
+var toastMaster = require('./libraries/toastMaster')
 
 var nativeWu = React.createClass({
   _pressQueue: function(){
@@ -31,18 +34,21 @@ var nativeWu = React.createClass({
   },
   render: function(){
     return (
-      <NavigatorIOS
-        ref="navigator"
-        style={styles.listContainer}
-        tintColor="#AB3C3C"
-        initialRoute={{
-          title: 'Artist',
-          component: CategoryView,
-          rightButtonTitle: "Now Playing",
-          onRightButtonPress: this._pressNowPlaying,
-          passProps: {category: "Artist"}
-        }}
-      />
+      <View style={styles.listContainer}>
+        <NavigatorIOS
+          ref="navigator"
+          style={styles.listContainer}
+          tintColor="#AB3C3C"
+          initialRoute={{
+            title: 'Artist',
+            component: CategoryView,
+            rightButtonTitle: "Now Playing",
+            onRightButtonPress: this._pressNowPlaying,
+            passProps: {category: "Artist"}
+          }}
+        />
+        <Toast></Toast>
+      </View>
     )
   }
 })
