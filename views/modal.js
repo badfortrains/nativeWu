@@ -14,6 +14,7 @@ var {
 
 var NavigatorSceneConfigs = require('NavigatorSceneConfigs');
 var DeviceHeight = require('Dimensions').get('window').height;
+var DeviceWidth = require('Dimensions').get('window').width;
 
 
 var Dimensions = require('Dimensions');
@@ -36,14 +37,43 @@ var ToTheLeft = {
   },
 };
 
+var ToTheRight = {
+  transformTranslate: {
+    from: {x: 0, y: 0, z: 0},
+    to: {x: 200, y: 100, z: 0},
+    min: 0,
+    max: 1,
+    type: 'linear',
+    extrapolate: true,
+    round: PixelRatio.get(),
+  },
+  opacity: {
+    value: 1.0,
+    type: 'constant',
+  },
+};
+
+
+
 var Modal = React.createClass({
-	ANIMATION_DURATION: 200,
-	ANIMATION: buildStyleInterpolator(ToTheLeft),
+	ANIMATION_DURATION: 100,
+	ANIMATION_LEFT: buildStyleInterpolator(ToTheLeft),
+	ANIMATION_RIGHT: buildStyleInterpolator(ToTheRight),
 	positionPopup: function(){
-		var top = this.props.top + 100 > DeviceHeight ? DeviceHeight - 100 : this.props.top;
-		return {
-			top: top 
+		var pos = this.props.position,
+			top = pos.top + 100 > DeviceHeight ? DeviceHeight - 100 : pos.top,
+			style = {
+				top: top,
+			};
+
+		if(pos.left < DeviceWidth / 2){
+			style.left = pos.left;
+		}else{
+			style.right = DeviceWidth - pos.left;
 		}
+
+
+		return style;
 	},
 	playNext: function(){
 		renderer.queueNext(this.props.filter);
@@ -59,7 +89,7 @@ var Modal = React.createClass({
 	animate: function(){
 		var styleToUse = {}
 		var progress = Math.min((Date.now() - this.startTime) / this.ANIMATION_DURATION,1);
-		this.ANIMATION(styleToUse,progress);
+		this.animation(styleToUse,progress);
 		this.refs.container.setNativeProps(styleToUse);
 		this.refs.overlay.setNativeProps({opacity: progress})
 		if(progress < 1)
@@ -68,14 +98,22 @@ var Modal = React.createClass({
 	},
 	componentDidMount: function(){
 		this.startTime = Date.now();
+		var pos = this.props.position;
+		if(pos.left < DeviceWidth / 2){
+			this.animation = this.ANIMATION_RIGHT
+		}else{
+			this.animation = this.ANIMATION_LEFT
+		}
 		window.requestAnimationFrame(this.animate);
 	},
 	render: function(){
+		var positionStyle = this.positionPopup(),
+			popupStyle = positionStyle.left ? styles.popupLeft : styles.popupRight;
 		return (
 			<TouchableWithoutFeedback onPress={this.close}>
 				<View ref="overlay" style={styles.overlay}> 
-					<View style={[styles.overflowContainer,this.positionPopup()]}>
-						<View  ref="container" style={styles.popup}>
+					<View style={[styles.overflowContainer,positionStyle]}>
+						<View  ref="container" style={[styles.popup, popupStyle]}>
 							<TouchableHighlight onPress={this.playNext}>
 								<View style={[styles.optionDivider,styles.bgWhite]}>
 										<Text style={styles.option}>Play next</Text>
@@ -116,9 +154,14 @@ var styles = StyleSheet.create({
 	popup: {
 		width: 200,
 		position: "absolute",
-		right: -100,
 		top: -100,
 		backgroundColor: "white",
+	},
+	popupLeft:{
+		left: -200,
+	},
+	popupRight: {
+		right: -100,
 	},
 	optionDivider: {
 		borderBottomWidth: 1,

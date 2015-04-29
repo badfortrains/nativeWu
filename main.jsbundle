@@ -1,5 +1,5 @@
 /* eslint global-strict:0 */
-__DEV__ = false;
+__DEV__ = true;
 
 /* eslint global-strict:0,eqeqeq:0,no-bitwise:0,no-undef:0 */
 (function(global) {
@@ -930,6 +930,193 @@ Object.assign = function(target, sources) {
   setupErrorGuard();
 })(this);
 
+/**
+ * @provides String.prototype.es6
+ * @polyfill
+ */
+
+/*eslint global-strict:0, no-extend-native:0, no-bitwise:0 */
+/*jshint bitwise:false*/
+
+/*
+ * NOTE: We use (Number(x) || 0) to replace NaN values with zero.
+ */
+
+if (!String.prototype.startsWith) {
+  String.prototype.startsWith = function(search) {
+    'use strict';
+    if (this == null) {
+      throw TypeError();
+    }
+    var string = String(this);
+    var pos = arguments.length > 1 ?
+      (Number(arguments[1]) || 0) : 0;
+    var start = Math.min(Math.max(pos, 0), string.length);
+    return string.indexOf(String(search), pos) === start;
+  };
+}
+
+if (!String.prototype.endsWith) {
+  String.prototype.endsWith = function(search) {
+    'use strict';
+    if (this == null) {
+      throw TypeError();
+    }
+    var string = String(this);
+    var stringLength = string.length;
+    var searchString = String(search);
+    var pos = arguments.length > 1 ?
+      (Number(arguments[1]) || 0) : stringLength;
+    var end = Math.min(Math.max(pos, 0), stringLength);
+    var start = end - searchString.length;
+    if (start < 0) {
+      return false;
+    }
+    return string.lastIndexOf(searchString, start) === start;
+  };
+}
+
+if (!String.prototype.contains) {
+  String.prototype.contains = function(search) {
+    'use strict';
+    if (this == null) {
+      throw TypeError();
+    }
+    var string = String(this);
+    var pos = arguments.length > 1 ?
+      (Number(arguments[1]) || 0) : 0;
+    return string.indexOf(String(search), pos) !== -1;
+  };
+}
+
+if (!String.prototype.repeat) {
+  String.prototype.repeat = function(count) {
+    'use strict';
+    if (this == null) {
+      throw TypeError();
+    }
+    var string = String(this);
+    count = Number(count) || 0;
+    if (count < 0 || count === Infinity) {
+      throw RangeError();
+    }
+    if (count === 1) {
+      return string;
+    }
+    var result = '';
+    while (count) {
+      if (count & 1) {
+        result += string;
+      }
+      if ((count >>= 1)) {
+        string += string;
+      }
+    }
+    return result;
+  };
+}
+
+/**
+ * Copyright 2004-present Facebook. All Rights Reserved.
+ *
+ * @provides Array.prototype.es6
+ * @polyfill
+ * @requires __DEV__
+ */
+
+/*eslint-disable */
+/*jslint bitwise: true */
+
+(function (undefined) {
+  if (__DEV__) {
+    // Define DEV-only setter that blows up when someone incorrectly
+    // iterates over arrays.
+    try {
+      Object.defineProperty && Object.defineProperty(
+        Array.prototype,
+        '__ARRAY_ENUMERATION_GUARD__',
+        {
+          configurable: true,
+          enumerable: true,
+          get: function() {
+            console.error(
+              'Your code is broken! Do not iterate over arrays with ' +
+              'for...in.'
+            );
+          }
+        }
+      );
+    } catch (e) {
+      // Nothing
+    }
+  }
+
+  // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/findIndex
+  function findIndex(predicate, context) {
+    /**
+     * Why am I seeing this "findIndex" method as a value in my array!?
+     *
+     * We polyfill the "findIndex" method -- called like
+     * `[1, 2, 3].findIndex(1)` -- for older browsers. A side effect of the way
+     * we do that is that the method is enumerable. If you were incorrectly
+     * iterating over your array using the object property iterator syntax
+     * `for (key in obj)` you will see the method name "findIndex" as a key.
+     *
+     * To fix your code please do one of the following:
+     *
+     *  - Use a regular for loop with index.
+     *  - Use one of the array methods: a.forEach, a.map, etc.
+     *  - Guard your body of your loop with a `arr.hasOwnProperty(key)` check.
+     */
+    if (this == null) {
+      throw new TypeError(
+        'Array.prototype.findIndex called on null or undefined'
+      );
+    }
+    if (typeof predicate !== 'function') {
+      throw new TypeError('predicate must be a function');
+    }
+    var list = Object(this);
+    var length = list.length >>> 0;
+    for (var i = 0; i < length; i++) {
+      if (predicate.call(context, list[i], i, list)) {
+        return i;
+      }
+    }
+    return -1;
+  }
+
+  if (!Array.prototype.findIndex) {
+    Array.prototype.findIndex = findIndex;
+  }
+
+  // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/find
+  if (!Array.prototype.find) {
+    Array.prototype.find = function(predicate, context) {
+      /**
+       * Why am I seeing this "find" method as a value in my array!?
+       *
+       * We polyfill the "find" method -- called like
+       * `[1, 2, 3].find(1)` -- for older browsers. A side effect of the way
+       * we do that is that the method is enumerable. If you were incorrectly
+       * iterating over your array using the object property iterator syntax
+       * `for (key in obj)` you will see the method name "find" as a key.
+       *
+       * To fix your code please do one of the following:
+       *
+       *  - Use a regular for loop with index.
+       *  - Use one of the array methods: a.forEach, a.map, etc.
+       *  - Guard your body of your loop with a `arr.hasOwnProperty(key)` check.
+       */
+      if (this == null) {
+        throw new TypeError('Array.prototype.find called on null or undefined');
+      }
+      var index = findIndex.call(this, predicate, context);
+      return index === -1 ? undefined : this[index];
+    };
+  }
+})();
+
 __d('nativeWu/index.ios',["react-native/Libraries/react-native/react-native","nativeWu/views/categoryView","nativeWu/views/nowPlaying","nativeWu/views/playlist"],function(global, require, requireDynamic, requireLazy, module, exports) {  /**
  * Sample React Native App
  * https://github.com/facebook/react-native
@@ -987,7 +1174,7 @@ var styles = StyleSheet.create({
 
 AppRegistry.registerComponent('nativeWu', function()  {return nativeWu;});
 });
-__d('react-native/Libraries/react-native/react-native',["React","ActivityIndicatorIOS","DatePickerIOS","Image","ListView","MapView","NavigatorIOS","PickerIOS","Navigator","ScrollView","SliderIOS","SwitchIOS","TabBarIOS","Text","TextInput","TouchableHighlight","TouchableOpacity","TouchableWithoutFeedback","View","WebView","AlertIOS","AppRegistry","AppStateIOS","AsyncStorage","CameraRoll","InteractionManager","LinkingIOS","LayoutAnimation","NetInfo","PixelRatio","PushNotificationIOS","PanResponder","StatusBarIOS","StyleSheet","VibrationIOS","RCTDeviceEventEmitter","NativeModules","LinkedStateMixin","ReactComponentWithPureRenderMixin","NativeModules","ReactUpdates","cloneWithProps","ReactFragment","update","ReactDefaultPerf","ReactTestUtils"],function(global, require, requireDynamic, requireLazy, module, exports) {  /**
+__d('react-native/Libraries/react-native/react-native',["React","ActivityIndicatorIOS","DatePickerIOS","Image","ListView","MapView","NavigatorIOS","PickerIOS","Navigator","ScrollView","SliderIOS","SwitchIOS","TabBarIOS","Text","TextInput","TouchableHighlight","TouchableOpacity","TouchableWithoutFeedback","View","WebView","AlertIOS","AppRegistry","AppStateIOS","AsyncStorage","CameraRoll","InteractionManager","LinkingIOS","LayoutAnimation","NetInfo","PixelRatio","PushNotificationIOS","PanResponder","StatusBarIOS","StyleSheet","VibrationIOS","RCTDeviceEventEmitter","NativeModules","requireNativeComponent","LinkedStateMixin","ReactComponentWithPureRenderMixin","NativeModules","ReactUpdates","cloneWithProps","ReactFragment","update","ReactDefaultPerf","ReactTestUtils"],function(global, require, requireDynamic, requireLazy, module, exports) {  /**
  * Copyright (c) 2015-present, Facebook, Inc.
  * All rights reserved.
  *
@@ -1048,6 +1235,7 @@ var ReactNative = Object.assign(Object.create(require('React')), {
   // Plugins
   DeviceEventEmitter: require('RCTDeviceEventEmitter'),
   NativeModules: require('NativeModules'),
+  requireNativeComponent: require('requireNativeComponent'),
 
   addons: {
     LinkedStateMixin: require('LinkedStateMixin'),
@@ -7076,7 +7264,8 @@ var BatchedBridgeFactory = {
       setLoggingEnabled: messageQueue.setLoggingEnabled.bind(messageQueue),
       getLoggedOutgoingItems: messageQueue.getLoggedOutgoingItems.bind(messageQueue),
       getLoggedIncomingItems: messageQueue.getLoggedIncomingItems.bind(messageQueue),
-      replayPreviousLog: messageQueue.replayPreviousLog.bind(messageQueue)
+      replayPreviousLog: messageQueue.replayPreviousLog.bind(messageQueue),
+      processBatch: messageQueue.processBatch.bind(messageQueue),
     };
   }
 };
@@ -7442,6 +7631,25 @@ var MessageQueueMixin = {
       this._flushedQueueUnguarded,
       this
     );
+  },
+
+  processBatch: function (batch) {
+    var self = this;
+    batch.forEach(function (call) {
+      invariant(
+        call.module === 'BatchedBridge',
+        'All the calls should pass through the BatchedBridge module'
+      );
+      if (call.method === 'callFunctionReturnFlushedQueue') {
+        self.callFunction.apply(self, call.args);
+      } else if (call.method === 'invokeCallbackAndReturnFlushedQueue') {
+        self.invokeCallback.apply(self, call.args);
+      } else {
+        throw new Error(
+          'Unrecognized method called on BatchedBridge: ' + call.method);
+      }
+    });
+    return this.flushedQueue();
   },
 
   setLoggingEnabled: function(enabled) {
@@ -8030,7 +8238,8 @@ __d('loadSourceMap',["Promise","NativeModules","SourceMap","react-native/Librari
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @providesModule loadSourceMap
- * @flow
+ *
+ * -- disabled flow due to mysterious validation errors --
  */
 
 'use strict';
@@ -8070,19 +8279,7 @@ function extractSourceMapURL($__0 )         {var url=$__0.url,text=$__0.text;
 
 module.exports = loadSourceMap;
 });
-__d('Promise',["ES6Promise","invariant","setImmediate","throwImmediate"],function(global, require, requireDynamic, requireLazy, module, exports) {  /**
- * @generated SignedSource<<a34c32acc93f914fafb29ca64341d514>>
- *
- * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
- * !! This file is a check-in of a static_upstream project!      !!
- * !!                                                            !!
- * !! You should not modify this file directly. Instead:         !!
- * !! 1) Use `fjs use-upstream` to temporarily replace this with !!
- * !!    the latest version from upstream.                       !!
- * !! 2) Make your changes, test them, etc.                      !!
- * !! 3) Use `fjs push-upstream` to copy your changes back to    !!
- * !!    static_upstream.                                        !!
- * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+__d('Promise',["setImmediate","promise/setimmediate/es6-extensions","promise/setimmediate/done"],function(global, require, requireDynamic, requireLazy, module, exports) {  /**
  *
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -8101,428 +8298,24 @@ __d('Promise',["ES6Promise","invariant","setImmediate","throwImmediate"],functio
  * @providesModule Promise
  *
  * This module wraps and augments the minimally ES6-compliant Promise
- * implementation provided by the ES6Promise module.
+ * implementation provided by the promise npm package.
  */
 
-var Promise = require('ES6Promise');
-var Pp = Promise.prototype;
+'use strict';
 
-var invariant = require('invariant');
-var setImmediate = require('setImmediate');
-var throwImmediate = require('throwImmediate');
+global.setImmediate = require('setImmediate');
+var Promise = require('promise/setimmediate/es6-extensions');
+require('promise/setimmediate/done');
 
 /**
  * Handle either fulfillment or rejection with the same callback.
  */
-Pp["finally"] = function(onSettled) {
+Promise.prototype["finally"] = function(onSettled) {
   return this.then(onSettled, onSettled);
 };
 
-/**
- * Throw any unhandled error in a separate tick of the event loop.
- */
-Pp.done = function(onFulfilled, onRejected) {
-  this.then(onFulfilled, onRejected).then(null, throwImmediate);
-};
-
-/**
- * This function takes an object with promises as keys and returns a promise.
- * The returned promise is resolved when all promises from the object are
- * resolved and gets rejected when the first promise is rejected.
- *
- * EXAMPLE:
- *   var promisedMuffin = Promise.allObject({
- *     dough: promisedDough,
- *     frosting: promisedFrosting
- *   }).then(function(results) {
- *     return combine(results.dough, results.frosting);
- *   });
- */
-Promise.allObject = function(/*object*/ promises) {
-  // Throw instead of warn here to make sure people use this only with object.
-  invariant(
-    !Array.isArray(promises),
-    'expected an object, got an array instead'
-  );
-
-  var keys = Object.keys(promises);
-  return Promise.all(keys.map(function(key) {
-    return promises[key];
-  })).then(function(values) {
-    var answers = {};
-    values.forEach(function(value, i) {
-      answers[keys[i]] = value;
-    });
-    return answers;
-  });
-};
 
 module.exports = Promise;
-});
-__d('ES6Promise',["setImmediate"],function(global, require, requireDynamic, requireLazy, module, exports) {  /**
- * @generated SignedSource<<d169e3bbcd91c2e26877882e0d02f289>>
- *
- * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
- * !! This file is a check-in of a static_upstream project!      !!
- * !!                                                            !!
- * !! You should not modify this file directly. Instead:         !!
- * !! 1) Use `fjs use-upstream` to temporarily replace this with !!
- * !!    the latest version from upstream.                       !!
- * !! 2) Make your changes, test them, etc.                      !!
- * !! 3) Use `fjs push-upstream` to copy your changes back to    !!
- * !!    static_upstream.                                        !!
- * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
- *
- * Copyright 2013-2014 Facebook, Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- * @providesModule ES6Promise
- *
- * This module implements the minimum functionality necessary to comply
- * with chapter 25.4 of the ES6 specification. Any extensions to Promise
- * or Promise.prototype should be added in the Promise module.
- *
- * people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects
- */
-
-module.exports = (function(global, undefined) {
-  'use strict';
-
-  var setImmediate = require('setImmediate');
-
-  // These are the possible values for slots(promise).state.
-  var PENDING_STATE = 'pending';
-  var FULFILLED_STATE = 'fulfilled';
-  var REJECTED_STATE = 'rejected';
-
-  // The ES6 specification makes heavy use of a notion of internal slots.
-  // Some of these slots are best implemented as closure variables, such
-  // as the alreadySettled variable in createResolvingFunctions, which
-  // corresponds to the resolve.[[AlreadyResolved]].value property in the
-  // specification. Other slots are best implemented as properties of a
-  // slots object attached to the host object by a pseudo-private
-  // property. The latter kind of slots may be accessed by passing the
-  // host object (such as a Promise or a resolve/reject function object)
-  // to the slots function; e.g., the slots(promise).state slot, which
-  // corresponds to promise.[[PromiseState]] in the specification.
-  var slotsKey = '__slots$' + Math.random().toString(36).slice(2);
-  function slots(obj) {
-    var result = obj[slotsKey];
-    if (!result) {
-      // In ES5+ environments, this property will be safely non-writable,
-      // non-configurable, and non-enumerable. This implementation does
-      // not logically rely on those niceties, however, so this code works
-      // just fine in pre-ES5 environments, too.
-      obj[slotsKey] = result = {};
-      if (Object.defineProperty) try {
-        Object.defineProperty(obj, slotsKey, { value: result });
-      } catch (definePropertyIsBrokenInIE8) {}
-    }
-    return result;
-  }
-
-  // Reusable callback functions. The identify function is the default
-  // when onFulfilled is undefined or null, and the raise function is the
-  // default when onRejected is undefined or null.
-  function identity(x) { return x; }
-  function raise(x) { throw x; }
-
-  /**
-   * When the Promise function is called with argument executor, the
-   * following steps are taken:
-   * people.mozilla.org/~jorendorff/es6-draft.html#sec-promise
-   *
-   * The executor argument must be a function object. It is called for
-   * initiating and reporting completion of the possibly deferred action
-   * represented by this Promise object. The executor is called with two
-   * arguments: resolve and reject. These are functions that may be used
-   * by the executor function to report eventual completion or failure of
-   * the deferred computation. Returning from the executor function does
-   * not mean that the deferred action has been completed, but only that
-   * the request to eventually perform the deferred action has been
-   * accepted.
-   *
-   * The resolve function that is passed to an executor function accepts a
-   * single argument. The executor code may eventually call the resolve
-   * function to indicate that it wishes to resolve the associated Promise
-   * object. The argument passed to the resolve function represents the
-   * eventual value of the deferred action and can be either the actual
-   * fulfillment value or another Promise object which will provide the
-   * value if it is fullfilled.
-   *
-   * The reject function that is passed to an executor function accepts a
-   * single argument. The executor code may eventually call the reject
-   * function to indicate that the associated Promise is rejected and will
-   * never be fulfilled. The argument passed to the reject function is
-   * used as the rejection value of the promise. Typically it will be an
-   * Error object.
-   *
-   * When Promise is called as a function rather than as a constructor, it
-   * initializes its this value with the internal state necessary to
-   * support the Promise.prototype methods.
-   *
-   * The Promise constructor is designed to be subclassable. It may be
-   * used as the value in an extends clause of a class
-   * definition. Subclass constructors that intend to inherit the
-   * specified Promise behaviour must include a super call to Promise,
-   * e.g. by invoking Promise.call(this, executor).
-   *
-   * people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-constructor
-   */
-  function Promise(executor) {
-    var promiseSlots = slots(this);
-    promiseSlots.state = PENDING_STATE;
-    promiseSlots.fulfillReactions = [];
-    promiseSlots.rejectReactions = [];
-
-    var resolvingFunctions = createResolvingFunctions(this);
-    var reject = resolvingFunctions.reject;
-
-    try {
-      executor(resolvingFunctions.resolve, reject);
-    } catch (err) {
-      reject(err);
-    }
-  }
-
-  function createResolvingFunctions(promise) {
-    var alreadySettled = false;
-
-    return {
-      resolve: function(resolution) {
-        if (!alreadySettled) {
-          alreadySettled = true;
-
-          if (resolution === promise) {
-            return settlePromise(
-              promise,
-              REJECTED_STATE,
-              new TypeError('Cannot resolve promise with itself')
-            );
-          }
-
-          // To be treated as a Promise-like object, the resolution only
-          // needs to be an object with a callable .then method.
-          if (!resolution ||
-              typeof resolution !== "object" ||
-              typeof resolution.then !== "function") {
-            return settlePromise(promise, FULFILLED_STATE, resolution);
-          }
-
-          var resolvingFunctions = createResolvingFunctions(promise);
-          var reject = resolvingFunctions.reject;
-
-          try {
-            resolution.then(resolvingFunctions.resolve, reject);
-          } catch (err) {
-            reject(err);
-          }
-        }
-      },
-
-      reject: function(reason) {
-        if (!alreadySettled) {
-          alreadySettled = true;
-          settlePromise(promise, REJECTED_STATE, reason);
-        }
-      }
-    };
-  }
-
-  // This function unifies the FulfillPromise and RejectPromise functions
-  // defined in the ES6 specification.
-  function settlePromise(promise, state, result) {
-    var promiseSlots = slots(promise);
-    if (promiseSlots.state !== PENDING_STATE) {
-      throw new Error('Settling a ' + promiseSlots.state + ' promise');
-    }
-
-    var reactions;
-    if (state === FULFILLED_STATE) {
-      reactions = promiseSlots.fulfillReactions;
-    } else if (state === REJECTED_STATE) {
-      reactions = promiseSlots.rejectReactions;
-    }
-
-    promiseSlots.result = result;
-    promiseSlots.fulfillReactions = undefined;
-    promiseSlots.rejectReactions = undefined;
-    promiseSlots.state = state;
-
-    var count = reactions.length;
-    count && setImmediate(function() {
-      for (var i = 0; i < count; ++i) {
-        reactions[i](promiseSlots.result);
-      }
-    });
-  }
-
-  /**
-   * The Promise.all function returns a new promise which is fulfilled
-   * with an array of fulfillment values for the passed promises, or
-   * rejects with the reason of the first passed promise that rejects. It
-   * resoves all elements of the passed iterable to promises as it runs
-   * this algorithm.
-   *
-   * people.mozilla.org/~jorendorff/es6-draft.html#sec-promise.all
-   */
-  Promise.all = function(array) {
-    var Promise = this;
-    return new Promise(function(resolve, reject) {
-      var results = [];
-      var remaining = 0;
-      array.forEach(function(element, index) {
-        ++remaining; // Array might be sparse.
-        Promise.resolve(element).then(function(result) {
-          if (!results.hasOwnProperty(index)) {
-            results[index] = result;
-            --remaining || resolve(results);
-          }
-        }, reject);
-      });
-      remaining || resolve(results);
-    });
-  };
-
-  /**
-   * The Promise.race function returns a new promise which is settled in
-   * the same way as the first passed promise to settle. It resolves all
-   * elements of the passed iterable to promises as it runs this
-   * algorithm.
-   *
-   * people.mozilla.org/~jorendorff/es6-draft.html#sec-promise.race
-   */
-  Promise.race = function(array) {
-    var Promise = this;
-    return new Promise(function(resolve, reject) {
-      array.forEach(function(element) {
-        Promise.resolve(element).then(resolve, reject);
-      });
-    });
-  };
-
-  /**
-   * The Promise.resolve function returns either a new promise resolved
-   * with the passed argument, or the argument itself if the argument a
-   * promise produced by this construtor.
-   *
-   * people.mozilla.org/~jorendorff/es6-draft.html#sec-promise.resolve
-   */
-  Promise.resolve = function(x) {
-    return x instanceof Promise && x.constructor === this
-      ? x // Refuse to create promises for promises.
-      : new this(function(resolve) { resolve(x); });
-  };
-
-  /**
-   * The Promise.reject function returns a new promise rejected with the
-   * passed argument.
-   *
-   * people.mozilla.org/~jorendorff/es6-draft.html#sec-promise.reject
-   */
-  Promise.reject = function(r) {
-    return new this(function(_, reject) { reject(r); });
-  };
-
-  var Pp = Promise.prototype;
-
-  /**
-   * When the .then method is called with arguments onFulfilled and
-   * onRejected, the following steps are taken:
-   *
-   * people.mozilla.org/~jorendorff/es6-draft.html#sec-promise.prototype.then
-   */
-  Pp.then = function(onFulfilled, onRejected) {
-    var capabilityResolve;
-    var capabilityReject;
-    var capabilityPromise = new this.constructor(function(resolve, reject) {
-      capabilityResolve = resolve;
-      capabilityReject = reject;
-    });
-
-    if (typeof capabilityResolve !== "function") {
-      throw new TypeError('Uncallable Promise resolve function');
-    }
-
-    if (typeof capabilityReject !== "function") {
-      throw new TypeError('Uncallable Promise reject function');
-    }
-
-    if (onFulfilled === undefined || onFulfilled === null) {
-      onFulfilled = identity;
-    }
-
-    if (onRejected === undefined || onRejected === null) {
-      onRejected = raise;
-    }
-
-    var promiseSlots = slots(this);
-    var state = promiseSlots.state;
-    if (state === PENDING_STATE) {
-      promiseSlots.fulfillReactions.push(makeReaction(
-        capabilityResolve,
-        capabilityReject,
-        onFulfilled
-      ));
-
-      promiseSlots.rejectReactions.push(makeReaction(
-        capabilityResolve,
-        capabilityReject,
-        onRejected
-      ));
-
-    } else if (state === FULFILLED_STATE || state === REJECTED_STATE) {
-      setImmediate(makeReaction(
-        capabilityResolve,
-        capabilityReject,
-        state === FULFILLED_STATE ? onFulfilled : onRejected,
-        promiseSlots.result
-      ));
-    }
-
-    return capabilityPromise;
-  };
-
-  function makeReaction(resolve, reject, handler, argument) {
-    var hasArgument = arguments.length > 3;
-    return function(result) {
-      try {
-        result = handler(hasArgument ? argument : result);
-      } catch (err) {
-        reject(err);
-        return;
-      }
-      resolve(result);
-    };
-  }
-
-  /**
-   * When the .catch method is called with argument onRejected, the
-   * following steps are taken:
-   *
-   * people.mozilla.org/~jorendorff/es6-draft.html#sec-promise.prototype.catch
-   */
-  Pp['catch'] = function(onRejected) {
-    return this.then(undefined, onRejected);
-  };
-
-  Pp.toString = function() {
-    return '[object Promise]';
-  };
-
-  return Promise;
-}(/* jslint evil: true */ Function('return this')()));
 });
 __d('setImmediate',["ImmediateImplementation"],function(global, require, requireDynamic, requireLazy, module, exports) {  /**
  * @generated SignedSource<<9715e66cd259f4d1a1c3d39c97cd0b92>>
@@ -8746,44 +8539,313 @@ __d('ImmediateImplementation',[],function(global, require, requireDynamic, requi
     exports.clearImmediate = clearImmediate;
 }(/* jslint evil: true */ Function("return this")()));
 });
-__d('throwImmediate',["setImmediate"],function(global, require, requireDynamic, requireLazy, module, exports) {  /**
- * @generated SignedSource<<5c985f16e4f2e576657ab2b1551adf97>>
- *
- * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
- * !! This file is a check-in of a static_upstream project!      !!
- * !!                                                            !!
- * !! You should not modify this file directly. Instead:         !!
- * !! 1) Use `fjs use-upstream` to temporarily replace this with !!
- * !!    the latest version from upstream.                       !!
- * !! 2) Make your changes, test them, etc.                      !!
- * !! 3) Use `fjs push-upstream` to copy your changes back to    !!
- * !!    static_upstream.                                        !!
- * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
- *
- * Copyright 2004-present Facebook. All Rights Reserved.
- *
- * @providesModule throwImmediate
- * @typechecks
- */
+__d('promise/setimmediate/es6-extensions',["promise/setimmediate/core"],function(global, require, requireDynamic, requireLazy, module, exports) {  'use strict';
 
-'use strict';
+//This file contains the ES6 extensions to the core Promises/A+ API
 
-var setImmediate = require('setImmediate');
+var Promise = require('promise/setimmediate/core');
 
-function throwArg(error) {
-  throw error;
+
+module.exports = Promise;
+
+/* Static Functions */
+
+var TRUE = valuePromise(true);
+var FALSE = valuePromise(false);
+var NULL = valuePromise(null);
+var UNDEFINED = valuePromise(undefined);
+var ZERO = valuePromise(0);
+var EMPTYSTRING = valuePromise('');
+
+function valuePromise(value) {
+  var p = new Promise(Promise._83);
+  p._32 = 1;
+  p._8 = value;
+  return p;
+}
+Promise.resolve = function (value) {
+  if (value instanceof Promise) return value;
+
+  if (value === null) return NULL;
+  if (value === undefined) return UNDEFINED;
+  if (value === true) return TRUE;
+  if (value === false) return FALSE;
+  if (value === 0) return ZERO;
+  if (value === '') return EMPTYSTRING;
+
+  if (typeof value === 'object' || typeof value === 'function') {
+    try {
+      var then = value.then;
+      if (typeof then === 'function') {
+        return new Promise(then.bind(value));
+      }
+    } catch (ex) {
+      return new Promise(function (resolve, reject) {
+        reject(ex);
+      });
+    }
+  }
+  return valuePromise(value);
+};
+
+Promise.all = function (arr) {
+  var args = Array.prototype.slice.call(arr);
+
+  return new Promise(function (resolve, reject) {
+    if (args.length === 0) return resolve([]);
+    var remaining = args.length;
+    function res(i, val) {
+      if (val && (typeof val === 'object' || typeof val === 'function')) {
+        if (val instanceof Promise && val.then === Promise.prototype.then) {
+          while (val._32 === 3) {
+            val = val._8;
+          }
+          if (val._32 === 1) return res(i, val._8);
+          if (val._32 === 2) reject(val._8);
+          val.then(function (val) {
+            res(i, val);
+          }, reject);
+          return;
+        } else {
+          var then = val.then;
+          if (typeof then === 'function') {
+            var p = new Promise(then.bind(val));
+            p.then(function (val) {
+              res(i, val);
+            }, reject);
+            return;
+          }
+        }
+      }
+      args[i] = val;
+      if (--remaining === 0) {
+        resolve(args);
+      }
+    }
+    for (var i = 0; i < args.length; i++) {
+      res(i, args[i]);
+    }
+  });
+};
+
+Promise.reject = function (value) {
+  return new Promise(function (resolve, reject) {
+    reject(value);
+  });
+};
+
+Promise.race = function (values) {
+  return new Promise(function (resolve, reject) {
+    values.forEach(function(value){
+      Promise.resolve(value).then(resolve, reject);
+    });
+  });
+};
+
+/* Prototype Methods */
+
+Promise.prototype['catch'] = function (onRejected) {
+  return this.then(null, onRejected);
+};
+});
+__d('promise/setimmediate/core',[],function(global, require, requireDynamic, requireLazy, module, exports) {  'use strict';
+
+
+
+function noop() {}
+
+// States:
+//
+// 0 - pending
+// 1 - fulfilled with _value
+// 2 - rejected with _value
+// 3 - adopted the state of another promise, _value
+//
+// once the state is no longer pending (0) it is immutable
+
+// All `_` prefixed properties will be reduced to `_{random number}`
+// at build time to obfuscate them and discourage their use.
+// We don't use symbols or Object.defineProperty to fully hide them
+// because the performance isn't good enough.
+
+
+// to avoid using try/catch inside critical functions, we
+// extract them to here.
+var LAST_ERROR = null;
+var IS_ERROR = {};
+function getThen(obj) {
+  try {
+    return obj.then;
+  } catch (ex) {
+    LAST_ERROR = ex;
+    return IS_ERROR;
+  }
+}
+
+function tryCallOne(fn, a) {
+  try {
+    return fn(a);
+  } catch (ex) {
+    LAST_ERROR = ex;
+    return IS_ERROR;
+  }
+}
+function tryCallTwo(fn, a, b) {
+  try {
+    fn(a, b);
+  } catch (ex) {
+    LAST_ERROR = ex;
+    return IS_ERROR;
+  }
+}
+
+module.exports = Promise;
+
+function Promise(fn) {
+  if (typeof this !== 'object') {
+    throw new TypeError('Promises must be constructed via new');
+  }
+  if (typeof fn !== 'function') {
+    throw new TypeError('not a function');
+  }
+  this._32 = 0;
+  this._8 = null;
+  this._89 = [];
+  if (fn === noop) return;
+  doResolve(fn, this);
+}
+Promise._83 = noop;
+
+Promise.prototype.then = function(onFulfilled, onRejected) {
+  if (this.constructor !== Promise) {
+    return safeThen(this, onFulfilled, onRejected);
+  }
+  var res = new Promise(noop);
+  handle(this, new Handler(onFulfilled, onRejected, res));
+  return res;
+};
+
+function safeThen(self, onFulfilled, onRejected) {
+  return new self.constructor(function (resolve, reject) {
+    var res = new Promise(noop);
+    res.then(resolve, reject);
+    handle(self, new Handler(onFulfilled, onRejected, res));
+  });
+};
+function handle(self, deferred) {
+  while (self._32 === 3) {
+    self = self._8;
+  }
+  if (self._32 === 0) {
+    self._89.push(deferred);
+    return;
+  }
+  setImmediate(function() {
+    var cb = self._32 === 1 ? deferred.onFulfilled : deferred.onRejected;
+    if (cb === null) {
+      if (self._32 === 1) {
+        resolve(deferred.promise, self._8);
+      } else {
+        reject(deferred.promise, self._8);
+      }
+      return;
+    }
+    var ret = tryCallOne(cb, self._8);
+    if (ret === IS_ERROR) {
+      reject(deferred.promise, LAST_ERROR);
+    } else {
+      resolve(deferred.promise, ret);
+    }
+  });
+}
+function resolve(self, newValue) {
+  // Promise Resolution Procedure: https://github.com/promises-aplus/promises-spec#the-promise-resolution-procedure
+  if (newValue === self) {
+    return reject(
+      self,
+      new TypeError('A promise cannot be resolved with itself.')
+    );
+  }
+  if (
+    newValue &&
+    (typeof newValue === 'object' || typeof newValue === 'function')
+  ) {
+    var then = getThen(newValue);
+    if (then === IS_ERROR) {
+      return reject(self, LAST_ERROR);
+    }
+    if (
+      then === self.then &&
+      newValue instanceof Promise
+    ) {
+      self._32 = 3;
+      self._8 = newValue;
+      finale(self);
+      return;
+    } else if (typeof then === 'function') {
+      doResolve(then.bind(newValue), self);
+      return;
+    }
+  }
+  self._32 = 1;
+  self._8 = newValue;
+  finale(self);
+}
+
+function reject(self, newValue) {
+  self._32 = 2;
+  self._8 = newValue;
+  finale(self);
+}
+function finale(self) {
+  for (var i = 0; i < self._89.length; i++) {
+    handle(self, self._89[i]);
+  }
+  self._89 = null;
+}
+
+function Handler(onFulfilled, onRejected, promise){
+  this.onFulfilled = typeof onFulfilled === 'function' ? onFulfilled : null;
+  this.onRejected = typeof onRejected === 'function' ? onRejected : null;
+  this.promise = promise;
 }
 
 /**
- * Throws the supplied error in a new execution loop.
+ * Take a potentially misbehaving resolver function and make sure
+ * onFulfilled and onRejected are only called once.
  *
- * @param {*} error
+ * Makes no guarantees about asynchrony.
  */
-function throwImmediate(error) {
-  setImmediate(throwArg, error);
+function doResolve(fn, promise) {
+  var done = false;
+  var res = tryCallTwo(fn, function (value) {
+    if (done) return;
+    done = true;
+    resolve(promise, value);
+  }, function (reason) {
+    if (done) return;
+    done = true;
+    reject(promise, reason);
+  })
+  if (!done && res === IS_ERROR) {
+    done = true;
+    reject(promise, LAST_ERROR);
+  }
 }
+});
+__d('promise/setimmediate/done',["promise/setimmediate/core"],function(global, require, requireDynamic, requireLazy, module, exports) {  'use strict';
 
-module.exports = throwImmediate;
+var Promise = require('promise/setimmediate/core');
+
+module.exports = Promise;
+Promise.prototype.done = function (onFulfilled, onRejected) {
+  var self = arguments.length ? this.then.apply(this, arguments) : this;
+  self.then(null, function (err) {
+    setTimeout(function () {
+      throw err;
+    }, 0);
+  });
+};
 });
 __d('SourceMap',[],function(global, require, requireDynamic, requireLazy, module, exports) {  /**
  * Copyright (c) 2015-present, Facebook, Inc.
@@ -14453,6 +14515,8 @@ function scheduleUpdate() {
  * Notify listeners, process queue, etc
  */
 function processUpdate() {
+  _nextUpdateHandle = null;
+
   var interactionCount = _interactionSet.size;
   _addInteractionSet.forEach(function(handle) 
     {return _interactionSet.add(handle);}
@@ -14472,12 +14536,13 @@ function processUpdate() {
 
   // process the queue regardless of a transition
   if (nextInteractionCount === 0) {
-    _queue.forEach(function(callback)  {
+    var queue = _queue;
+    _queue = [];
+    queue.forEach(function(callback)  {
       ErrorUtils.applyWithGuard(callback);
     });
-    _queue = [];
   }
-  _nextUpdateHandle = null;
+
   _addInteractionSet.clear();
   _deleteInteractionSet.clear();
 }
@@ -18953,7 +19018,7 @@ var ReactEventEmitterMixin = {
 
 module.exports = ReactEventEmitterMixin;
 });
-__d('ReactIOSStyleAttributes',["TextStylePropTypes","ViewStylePropTypes","deepDiffer","keyMirror","matricesDiffer","merge"],function(global, require, requireDynamic, requireLazy, module, exports) {  /**
+__d('ReactIOSStyleAttributes',["ImageStylePropTypes","TextStylePropTypes","ViewStylePropTypes","keyMirror","matricesDiffer","sizesDiffer"],function(global, require, requireDynamic, requireLazy, module, exports) {  /**
  * Copyright (c) 2015-present, Facebook, Inc.
  * All rights reserved.
  *
@@ -18965,27 +19030,28 @@ __d('ReactIOSStyleAttributes',["TextStylePropTypes","ViewStylePropTypes","deepDi
  * @flow
  */
 
-"use strict";
+'use strict';
 
+var ImageStylePropTypes = require('ImageStylePropTypes');
 var TextStylePropTypes = require('TextStylePropTypes');
 var ViewStylePropTypes = require('ViewStylePropTypes');
 
-var deepDiffer = require('deepDiffer');
 var keyMirror = require('keyMirror');
 var matricesDiffer = require('matricesDiffer');
-var merge = require('merge');
+var sizesDiffer = require('sizesDiffer');
 
-var ReactIOSStyleAttributes = merge(
+var ReactIOSStyleAttributes = Object.assign({},
   keyMirror(ViewStylePropTypes),
-  keyMirror(TextStylePropTypes)
+  keyMirror(TextStylePropTypes),
+  keyMirror(ImageStylePropTypes)
 );
 
 ReactIOSStyleAttributes.transformMatrix = { diff: matricesDiffer };
-ReactIOSStyleAttributes.shadowOffset = { diff: deepDiffer };
+ReactIOSStyleAttributes.shadowOffset = { diff: sizesDiffer };
 
 module.exports = ReactIOSStyleAttributes;
 });
-__d('TextStylePropTypes',["ReactPropTypes","ViewStylePropTypes"],function(global, require, requireDynamic, requireLazy, module, exports) {  /**
+__d('ImageStylePropTypes',["ImageResizeMode","LayoutPropTypes","ReactPropTypes"],function(global, require, requireDynamic, requireLazy, module, exports) {  /**
  * Copyright (c) 2015-present, Facebook, Inc.
  * All rights reserved.
  *
@@ -18993,35 +19059,30 @@ __d('TextStylePropTypes',["ReactPropTypes","ViewStylePropTypes"],function(global
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  *
- * @providesModule TextStylePropTypes
+ * @providesModule ImageStylePropTypes
  * @flow
  */
 'use strict';
 
+var ImageResizeMode = require('ImageResizeMode');
+var LayoutPropTypes = require('LayoutPropTypes');
 var ReactPropTypes = require('ReactPropTypes');
-var ViewStylePropTypes = require('ViewStylePropTypes');
 
-// TODO: use spread instead of Object.assign/create after #6560135 is fixed
-var TextStylePropTypes = Object.assign(Object.create(ViewStylePropTypes), {
-  fontFamily: ReactPropTypes.string,
-  fontSize: ReactPropTypes.number,
-  fontWeight: ReactPropTypes.oneOf(
-    ['normal' /*default*/, 'bold',
-     '100', '200', '300', '400', '500', '600', '700', '800', '900']
-  ),
-  fontStyle: ReactPropTypes.oneOf(['normal', 'italic']),
-  lineHeight: ReactPropTypes.number,
-  color: ReactPropTypes.string,
-  containerBackgroundColor: ReactPropTypes.string,
-  textAlign: ReactPropTypes.oneOf(
-    ['auto' /*default*/, 'left', 'right', 'center']
-  ),
-  writingDirection: ReactPropTypes.oneOf(
-    ['auto' /*default*/, 'ltr', 'rtl']
-  ),
+var ImageStylePropTypes = Object.assign({},
+  LayoutPropTypes,
+  {resizeMode: ReactPropTypes.oneOf(Object.keys(ImageResizeMode)),
+  backgroundColor: ReactPropTypes.string,
+  borderColor: ReactPropTypes.string,
+  borderWidth: ReactPropTypes.number,
+  borderRadius: ReactPropTypes.number,
+
+  // iOS-Specific style to "tint" an image.
+  // It changes the color of all the non-transparent pixels to the tintColor
+  tintColor: ReactPropTypes.string,
+  opacity: ReactPropTypes.number
 });
 
-// Text doesn't support padding correctly (#4841912)
+// Image doesn't support padding correctly (#4841912)
 var unsupportedProps = Object.keys({
   padding: null,
   paddingTop: null,
@@ -19032,11 +19093,150 @@ var unsupportedProps = Object.keys({
   paddingHorizontal: null,
 });
 
-for (var ii = 0; ii < unsupportedProps.length; ii++) {
-  delete TextStylePropTypes[unsupportedProps[ii]];
+for (var i = 0; i < unsupportedProps.length; i++) {
+  delete ImageStylePropTypes[unsupportedProps[i]];
 }
 
-module.exports = TextStylePropTypes;
+module.exports = ImageStylePropTypes;
+});
+__d('ImageResizeMode',["keyMirror"],function(global, require, requireDynamic, requireLazy, module, exports) {  /**
+ * Copyright (c) 2015-present, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @providesModule ImageResizeMode
+ * @flow
+ */
+'use strict';
+
+var keyMirror = require('keyMirror');
+
+/**
+ * ImageResizeMode - Enum for different image resizing modes, set via
+ * `resizeMode` style property on `<Image>` components.
+ */
+var ImageResizeMode = keyMirror({
+  /**
+   * contain - The image will be resized such that it will be completely
+   * visible, contained within the frame of the View.
+   */
+  contain: null,
+  /**
+   * cover - The image will be resized such that the entire area of the view
+   * is covered by the image, potentially clipping parts of the image.
+   */
+  cover: null,
+  /**
+   * stretch - The image will be stretched to fill the entire frame of the
+   * view without clipping.  This may change the aspect ratio of the image,
+   * distoring it.  Only supported on iOS.
+   */
+  stretch: null,
+});
+
+module.exports = ImageResizeMode;
+});
+__d('LayoutPropTypes',["ReactPropTypes"],function(global, require, requireDynamic, requireLazy, module, exports) {  /**
+ * Copyright (c) 2015-present, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @providesModule LayoutPropTypes
+ * @flow
+ */
+'use strict';
+
+var ReactPropTypes = require('ReactPropTypes');
+
+/**
+ * These properties are a subset of our styles that are consumed by the layout
+ * algorithm and affect the positioning and sizing of views.
+ */
+
+var LayoutPropTypes = {
+  width: ReactPropTypes.number,
+  height: ReactPropTypes.number,
+  top: ReactPropTypes.number,
+  left: ReactPropTypes.number,
+  right: ReactPropTypes.number,
+  bottom: ReactPropTypes.number,
+  margin: ReactPropTypes.number,
+  marginVertical: ReactPropTypes.number,
+  marginHorizontal: ReactPropTypes.number,
+  marginTop: ReactPropTypes.number,
+  marginBottom: ReactPropTypes.number,
+  marginLeft: ReactPropTypes.number,
+  marginRight: ReactPropTypes.number,
+  padding: ReactPropTypes.number,
+  paddingVertical: ReactPropTypes.number,
+  paddingHorizontal: ReactPropTypes.number,
+  paddingTop: ReactPropTypes.number,
+  paddingBottom: ReactPropTypes.number,
+  paddingLeft: ReactPropTypes.number,
+  paddingRight: ReactPropTypes.number,
+  borderWidth: ReactPropTypes.number,
+  borderTopWidth: ReactPropTypes.number,
+  borderRightWidth: ReactPropTypes.number,
+  borderBottomWidth: ReactPropTypes.number,
+  borderLeftWidth: ReactPropTypes.number,
+
+  position: ReactPropTypes.oneOf([
+    'absolute',
+    'relative'
+  ]),
+
+  // https://developer.mozilla.org/en-US/docs/Web/CSS/flex-direction
+  flexDirection: ReactPropTypes.oneOf([
+    'row',
+    'column'
+  ]),
+
+  // https://developer.mozilla.org/en-US/docs/Web/CSS/flex-wrap
+  flexWrap: ReactPropTypes.oneOf([
+    'wrap',
+    'nowrap'
+  ]),
+
+  // How to align children in the main direction
+  // https://developer.mozilla.org/en-US/docs/Web/CSS/justify-content
+  justifyContent: ReactPropTypes.oneOf([
+    'flex-start',
+    'flex-end',
+    'center',
+    'space-between',
+    'space-around'
+  ]),
+
+  // How to align children in the cross direction
+  // https://developer.mozilla.org/en-US/docs/Web/CSS/align-items
+  alignItems: ReactPropTypes.oneOf([
+    'flex-start',
+    'flex-end',
+    'center',
+    'stretch'
+  ]),
+
+  // How to align the element in the cross direction
+  // https://developer.mozilla.org/en-US/docs/Web/CSS/align-items
+  alignSelf: ReactPropTypes.oneOf([
+    'auto',
+    'flex-start',
+    'flex-end',
+    'center',
+    'stretch'
+  ]),
+
+  // https://developer.mozilla.org/en-US/docs/Web/CSS/flex
+  flex: ReactPropTypes.number,
+};
+
+module.exports = LayoutPropTypes;
 });
 __d('ReactPropTypes',["ReactElement","ReactFragment","ReactPropTypeLocationNames","emptyFunction"],function(global, require, requireDynamic, requireLazy, module, exports) {  /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -19386,6 +19586,59 @@ function getPreciseType(propValue) {
 
 module.exports = ReactPropTypes;
 });
+__d('TextStylePropTypes',["ReactPropTypes","ViewStylePropTypes"],function(global, require, requireDynamic, requireLazy, module, exports) {  /**
+ * Copyright (c) 2015-present, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @providesModule TextStylePropTypes
+ * @flow
+ */
+'use strict';
+
+var ReactPropTypes = require('ReactPropTypes');
+var ViewStylePropTypes = require('ViewStylePropTypes');
+
+// TODO: use spread instead of Object.assign/create after #6560135 is fixed
+var TextStylePropTypes = Object.assign(Object.create(ViewStylePropTypes), {
+  fontFamily: ReactPropTypes.string,
+  fontSize: ReactPropTypes.number,
+  fontWeight: ReactPropTypes.oneOf(
+    ['normal' /*default*/, 'bold',
+     '100', '200', '300', '400', '500', '600', '700', '800', '900']
+  ),
+  fontStyle: ReactPropTypes.oneOf(['normal', 'italic']),
+  lineHeight: ReactPropTypes.number,
+  color: ReactPropTypes.string,
+  containerBackgroundColor: ReactPropTypes.string,
+  textAlign: ReactPropTypes.oneOf(
+    ['auto' /*default*/, 'left', 'right', 'center']
+  ),
+  writingDirection: ReactPropTypes.oneOf(
+    ['auto' /*default*/, 'ltr', 'rtl']
+  ),
+});
+
+// Text doesn't support padding correctly (#4841912)
+var unsupportedProps = Object.keys({
+  padding: null,
+  paddingTop: null,
+  paddingLeft: null,
+  paddingRight: null,
+  paddingBottom: null,
+  paddingVertical: null,
+  paddingHorizontal: null,
+});
+
+for (var ii = 0; ii < unsupportedProps.length; ii++) {
+  delete TextStylePropTypes[unsupportedProps[ii]];
+}
+
+module.exports = TextStylePropTypes;
+});
 __d('ViewStylePropTypes',["LayoutPropTypes","ReactPropTypes"],function(global, require, requireDynamic, requireLazy, module, exports) {  /**
  * Copyright (c) 2015-present, Facebook, Inc.
  * All rights reserved.
@@ -19432,159 +19685,6 @@ var ViewStylePropTypes = Object.assign({},
 
 module.exports = ViewStylePropTypes;
 });
-__d('LayoutPropTypes',["ReactPropTypes"],function(global, require, requireDynamic, requireLazy, module, exports) {  /**
- * Copyright (c) 2015-present, Facebook, Inc.
- * All rights reserved.
- *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
- *
- * @providesModule LayoutPropTypes
- * @flow
- */
-'use strict';
-
-var ReactPropTypes = require('ReactPropTypes');
-
-/**
- * These properties are a subset of our styles that are consumed by the layout
- * algorithm and affect the positioning and sizing of views.
- */
-
-var LayoutPropTypes = {
-  width: ReactPropTypes.number,
-  height: ReactPropTypes.number,
-  top: ReactPropTypes.number,
-  left: ReactPropTypes.number,
-  right: ReactPropTypes.number,
-  bottom: ReactPropTypes.number,
-  margin: ReactPropTypes.number,
-  marginVertical: ReactPropTypes.number,
-  marginHorizontal: ReactPropTypes.number,
-  marginTop: ReactPropTypes.number,
-  marginBottom: ReactPropTypes.number,
-  marginLeft: ReactPropTypes.number,
-  marginRight: ReactPropTypes.number,
-  padding: ReactPropTypes.number,
-  paddingVertical: ReactPropTypes.number,
-  paddingHorizontal: ReactPropTypes.number,
-  paddingTop: ReactPropTypes.number,
-  paddingBottom: ReactPropTypes.number,
-  paddingLeft: ReactPropTypes.number,
-  paddingRight: ReactPropTypes.number,
-  borderWidth: ReactPropTypes.number,
-  borderTopWidth: ReactPropTypes.number,
-  borderRightWidth: ReactPropTypes.number,
-  borderBottomWidth: ReactPropTypes.number,
-  borderLeftWidth: ReactPropTypes.number,
-
-  position: ReactPropTypes.oneOf([
-    'absolute',
-    'relative'
-  ]),
-
-  // https://developer.mozilla.org/en-US/docs/Web/CSS/flex-direction
-  flexDirection: ReactPropTypes.oneOf([
-    'row',
-    'column'
-  ]),
-
-  // https://developer.mozilla.org/en-US/docs/Web/CSS/flex-wrap
-  flexWrap: ReactPropTypes.oneOf([
-    'wrap',
-    'nowrap'
-  ]),
-
-  // How to align children in the main direction
-  // https://developer.mozilla.org/en-US/docs/Web/CSS/justify-content
-  justifyContent: ReactPropTypes.oneOf([
-    'flex-start',
-    'flex-end',
-    'center',
-    'space-between',
-    'space-around'
-  ]),
-
-  // How to align children in the cross direction
-  // https://developer.mozilla.org/en-US/docs/Web/CSS/align-items
-  alignItems: ReactPropTypes.oneOf([
-    'flex-start',
-    'flex-end',
-    'center',
-    'stretch'
-  ]),
-
-  // How to align the element in the cross direction
-  // https://developer.mozilla.org/en-US/docs/Web/CSS/align-items
-  alignSelf: ReactPropTypes.oneOf([
-    'auto',
-    'flex-start',
-    'flex-end',
-    'center',
-    'stretch'
-  ]),
-
-  // https://developer.mozilla.org/en-US/docs/Web/CSS/flex
-  flex: ReactPropTypes.number,
-};
-
-module.exports = LayoutPropTypes;
-});
-__d('deepDiffer',[],function(global, require, requireDynamic, requireLazy, module, exports) {  /**
- * Copyright (c) 2015-present, Facebook, Inc.
- * All rights reserved.
- *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
- *
- * @providesModule deepDiffer
- * @flow
- */
-'use strict';
-
-/*
- * @returns {bool} true if different, false if equal
- */
-var deepDiffer = function(one     , two     )       {
-  if (one === two) {
-    // Short circuit on identical object references instead of traversing them.
-    return false;
-  }
-  if ((typeof one === 'function') && (typeof two === 'function')) {
-    // We consider all functions equal
-    return false;
-  }
-  if ((typeof one !== 'object') || (one === null)) {
-    // Primitives can be directly compared
-    return one !== two;
-  }
-  if ((typeof two !== 'object') || (two === null)) {
-    // We know they are different because the previous case would have triggered
-    // otherwise.
-    return true;
-  }
-  if (one.constructor !== two.constructor) {
-    return true;
-  }
-  for (var key in one) {
-    if (deepDiffer(one[key], two[key])) {
-      return true;
-    }
-  }
-  for (var twoKey in two) {
-    // The only case we haven't checked yet is keys that are in two but aren't
-    // in one, which means they are different.
-    if (one[twoKey] === undefined && two[twoKey] !== undefined) {
-      return true;
-    }
-  }
-  return false;
-};
-
-module.exports = deepDiffer;
-});
 __d('matricesDiffer',[],function(global, require, requireDynamic, requireLazy, module, exports) {  /**
  * Copyright (c) 2015-present, Facebook, Inc.
  * All rights reserved.
@@ -19629,6 +19729,26 @@ var matricesDiffer = function(one, two) {
 };
 
 module.exports = matricesDiffer;
+});
+__d('sizesDiffer',[],function(global, require, requireDynamic, requireLazy, module, exports) {  /**
+ * Copyright 2004-present Facebook. All Rights Reserved.
+ *
+ * @providesModule sizesDiffer
+ */
+'use strict';
+
+var dummySize = {w: undefined, h: undefined};
+
+var sizesDiffer = function(one, two) {
+  one = one || dummySize;
+  two = two || dummySize;
+  return one !== two && (
+    one.w !== two.w ||
+    one.h !== two.h
+  );
+};
+
+module.exports = sizesDiffer;
 });
 __d('ReactMultiChild',["ReactComponentEnvironment","ReactMultiChildUpdateTypes","ReactReconciler","ReactChildReconciler"],function(global, require, requireDynamic, requireLazy, module, exports) {  /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -20302,6 +20422,60 @@ function styleEqual(a     , b     )       {
 
 module.exports = styleDiffer;
 });
+__d('deepDiffer',[],function(global, require, requireDynamic, requireLazy, module, exports) {  /**
+ * Copyright (c) 2015-present, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @providesModule deepDiffer
+ * @flow
+ */
+'use strict';
+
+/*
+ * @returns {bool} true if different, false if equal
+ */
+var deepDiffer = function(one     , two     )       {
+  if (one === two) {
+    // Short circuit on identical object references instead of traversing them.
+    return false;
+  }
+  if ((typeof one === 'function') && (typeof two === 'function')) {
+    // We consider all functions equal
+    return false;
+  }
+  if ((typeof one !== 'object') || (one === null)) {
+    // Primitives can be directly compared
+    return one !== two;
+  }
+  if ((typeof two !== 'object') || (two === null)) {
+    // We know they are different because the previous case would have triggered
+    // otherwise.
+    return true;
+  }
+  if (one.constructor !== two.constructor) {
+    return true;
+  }
+  for (var key in one) {
+    if (deepDiffer(one[key], two[key])) {
+      return true;
+    }
+  }
+  for (var twoKey in two) {
+    // The only case we haven't checked yet is keys that are in two but aren't
+    // in one, which means they are different.
+    if (one[twoKey] === undefined && two[twoKey] !== undefined) {
+      return true;
+    }
+  }
+  return false;
+};
+
+module.exports = deepDiffer;
+});
 __d('deepFreezeAndThrowOnMutationInDev',[],function(global, require, requireDynamic, requireLazy, module, exports) {  /**
  * Copyright (c) 2015-present, Facebook, Inc.
  * All rights reserved.
@@ -20945,94 +21119,6 @@ StyleSheetValidation.addValidStylePropTypes(ViewStylePropTypes);
 
 module.exports = StyleSheetValidation;
 });
-__d('ImageStylePropTypes',["ImageResizeMode","LayoutPropTypes","ReactPropTypes"],function(global, require, requireDynamic, requireLazy, module, exports) {  /**
- * Copyright (c) 2015-present, Facebook, Inc.
- * All rights reserved.
- *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
- *
- * @providesModule ImageStylePropTypes
- * @flow
- */
-'use strict';
-
-var ImageResizeMode = require('ImageResizeMode');
-var LayoutPropTypes = require('LayoutPropTypes');
-var ReactPropTypes = require('ReactPropTypes');
-
-var ImageStylePropTypes = Object.assign({},
-  LayoutPropTypes,
-  {resizeMode: ReactPropTypes.oneOf(Object.keys(ImageResizeMode)),
-  backgroundColor: ReactPropTypes.string,
-  borderColor: ReactPropTypes.string,
-  borderWidth: ReactPropTypes.number,
-  borderRadius: ReactPropTypes.number,
-
-  // iOS-Specific style to "tint" an image.
-  // It changes the color of all the non-transparent pixels to the tintColor
-  tintColor: ReactPropTypes.string,
-  opacity: ReactPropTypes.number
-});
-
-// Image doesn't support padding correctly (#4841912)
-var unsupportedProps = Object.keys({
-  padding: null,
-  paddingTop: null,
-  paddingLeft: null,
-  paddingRight: null,
-  paddingBottom: null,
-  paddingVertical: null,
-  paddingHorizontal: null,
-});
-
-for (var i = 0; i < unsupportedProps.length; i++) {
-  delete ImageStylePropTypes[unsupportedProps[i]];
-}
-
-module.exports = ImageStylePropTypes;
-});
-__d('ImageResizeMode',["keyMirror"],function(global, require, requireDynamic, requireLazy, module, exports) {  /**
- * Copyright (c) 2015-present, Facebook, Inc.
- * All rights reserved.
- *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
- *
- * @providesModule ImageResizeMode
- * @flow
- */
-'use strict';
-
-var keyMirror = require('keyMirror');
-
-/**
- * ImageResizeMode - Enum for different image resizing modes, set via
- * `resizeMode` style property on `<Image>` components.
- */
-var ImageResizeMode = keyMirror({
-  /**
-   * contain - The image will be resized such that it will be completely
-   * visible, contained within the frame of the View.
-   */
-  contain: null,
-  /**
-   * cover - The image will be resized such that the entire area of the view
-   * is covered by the image, potentially clipping parts of the image.
-   */
-  cover: null,
-  /**
-   * stretch - The image will be stretched to fill the entire frame of the
-   * view without clipping.  This may change the aspect ratio of the image,
-   * distoring it.  Only supported on iOS.
-   */
-  stretch: null,
-});
-
-module.exports = ImageResizeMode;
-});
 __d('View',["NativeMethodsMixin","ReactPropTypes","React","ReactIOSViewAttributes","StyleSheetPropType","ViewStylePropTypes","createReactIOSNativeComponentClass"],function(global, require, requireDynamic, requireLazy, module, exports) {  /**
  * Copyright (c) 2015-present, Facebook, Inc.
  * All rights reserved.
@@ -21472,7 +21558,7 @@ var RCTDatePickerIOS = createReactIOSNativeComponentClass({
 
 module.exports = DatePickerIOS;
 });
-__d('Image',["EdgeInsetsPropType","NativeMethodsMixin","NativeModules","ReactPropTypes","ImageResizeMode","ImageStylePropTypes","React","ReactIOSViewAttributes","StyleSheet","StyleSheetPropType","createReactIOSNativeComponentClass","flattenStyle","insetsDiffer","invariant","merge","warning"],function(global, require, requireDynamic, requireLazy, module, exports) {  /**
+__d('Image',["EdgeInsetsPropType","NativeMethodsMixin","NativeModules","Platform","ReactPropTypes","ImageResizeMode","ImageStylePropTypes","React","ReactIOSViewAttributes","StyleSheet","StyleSheetPropType","createReactIOSNativeComponentClass","flattenStyle","insetsDiffer","invariant","merge","requireNativeComponent","warning","verifyPropTypes"],function(global, require, requireDynamic, requireLazy, module, exports) {  /**
  * Copyright (c) 2015-present, Facebook, Inc.
  * All rights reserved.
  *
@@ -21488,6 +21574,7 @@ __d('Image',["EdgeInsetsPropType","NativeMethodsMixin","NativeModules","ReactPro
 var EdgeInsetsPropType = require('EdgeInsetsPropType');
 var NativeMethodsMixin = require('NativeMethodsMixin');
 var NativeModules = require('NativeModules');
+var Platform = require('Platform');
 var PropTypes = require('ReactPropTypes');
 var ImageResizeMode = require('ImageResizeMode');
 var ImageStylePropTypes = require('ImageStylePropTypes');
@@ -21501,7 +21588,9 @@ var flattenStyle = require('flattenStyle');
 var insetsDiffer = require('insetsDiffer');
 var invariant = require('invariant');
 var merge = require('merge');
+var requireNativeComponent = require('requireNativeComponent');
 var warning = require('warning');
+var verifyPropTypes = require('verifyPropTypes');
 
 /**
  * A react component for displaying different types of images,
@@ -21539,6 +21628,13 @@ var Image = React.createClass({displayName: "Image",
       uri: PropTypes.string,
     }),
     /**
+     * A static image to display while downloading the final image off the
+     * network.
+     */
+    defaultSource: PropTypes.shape({
+      uri: PropTypes.string,
+    }),
+    /**
      * Whether this element should be revealed as an accessible element.
      */
     accessible: PropTypes.bool,
@@ -21554,6 +21650,11 @@ var Image = React.createClass({displayName: "Image",
      * [Apple documentation](https://developer.apple.com/library/ios/documentation/UIKit/Reference/UIImage_Class/index.html#//apple_ref/occ/instm/UIImage/resizableImageWithCapInsets)
      */
     capInsets: EdgeInsetsPropType,
+    /**
+     * Determines how to resize the image when the frame doesn't match the raw
+     * image dimensions.
+     */
+    resizeMode: PropTypes.oneOf(['cover', 'contain', 'stretch']),
     style: StyleSheetPropType(ImageStylePropTypes),
     /**
      * A unique identifier for this element to be used in UI Automation
@@ -21578,6 +21679,12 @@ var Image = React.createClass({displayName: "Image",
   },
 
   render: function() {
+    for (var prop in nativeOnlyProps) {
+      if (this.props[prop] !== undefined) {
+        console.warn('Prop `' + prop + ' = ' + this.props[prop] + '` should ' +
+          'not be set directly on Image.');
+      }
+    }
     var style = flattenStyle([styles.base, this.props.style]);
     invariant(style, "style must be initialized");
     var source = this.props.source;
@@ -21593,27 +21700,35 @@ var Image = React.createClass({displayName: "Image",
     if (this.props.style && this.props.style.tintColor) {
       warning(RawImage === RCTStaticImage, 'tintColor style only supported on static images.');
     }
-
+    var resizeMode = this.props.resizeMode || style.resizeMode;
     var contentModes = NativeModules.UIManager.UIView.ContentMode;
-    var resizeMode;
-    if (style.resizeMode === ImageResizeMode.stretch) {
-      resizeMode = contentModes.ScaleToFill;
-    } else if (style.resizeMode === ImageResizeMode.contain) {
-      resizeMode = contentModes.ScaleAspectFit;
+    var contentMode;
+    if (resizeMode === ImageResizeMode.stretch) {
+      contentMode = contentModes.ScaleToFill;
+    } else if (resizeMode === ImageResizeMode.contain) {
+      contentMode = contentModes.ScaleAspectFit;
     } else { // ImageResizeMode.cover or undefined
-      resizeMode = contentModes.ScaleAspectFill;
+      contentMode = contentModes.ScaleAspectFill;
     }
 
     var nativeProps = merge(this.props, {
       style:style,
-      resizeMode:resizeMode,
+      contentMode:contentMode,
       tintColor: style.tintColor,
     });
+    if (Platform.OS === 'android') {
+      // TODO: update android native code to not need this
+      nativeProps.resizeMode = contentMode;
+      delete nativeProps.contentMode;
+    }
 
     if (isStored) {
       nativeProps.imageTag = source.uri;
     } else {
       nativeProps.src = source.uri;
+    }
+    if (this.props.defaultSource) {
+      nativeProps.defaultImageSrc = this.props.defaultSource.uri;
     }
     return React.createElement(RawImage, React.__spread({},  nativeProps));
   }
@@ -21625,25 +21740,40 @@ var styles = StyleSheet.create({
   },
 });
 
-var CommonImageViewAttributes = merge(ReactIOSViewAttributes.UIView, {
-  accessible: true,
-  accessibilityLabel: true,
-  capInsets: {diff: insetsDiffer}, // UIEdgeInsets=UIEdgeInsetsZero
-  imageTag: true,
-  resizeMode: true,
+if (Platform.OS === 'android') {
+  var CommonImageViewAttributes = merge(ReactIOSViewAttributes.UIView, {
+    accessible: true,
+    accessibilityLabel: true,
+    capInsets: {diff: insetsDiffer}, // UIEdgeInsets=UIEdgeInsetsZero
+    imageTag: true,
+    resizeMode: true,
+    src: true,
+    testID: PropTypes.string,
+  });
+
+  var RCTStaticImage = createReactIOSNativeComponentClass({
+    validAttributes: merge(CommonImageViewAttributes, { tintColor: true }),
+    uiViewClassName: 'RCTStaticImage',
+  });
+
+  var RCTNetworkImage = createReactIOSNativeComponentClass({
+    validAttributes: merge(CommonImageViewAttributes, { defaultImageSrc: true }),
+    uiViewClassName: 'RCTNetworkImageView',
+  });
+} else {
+  var RCTStaticImage = requireNativeComponent('RCTStaticImage', null);
+  var RCTNetworkImage = requireNativeComponent('RCTNetworkImageView', null);
+}
+var nativeOnlyProps = {
   src: true,
-  testID: PropTypes.string,
-});
-
-var RCTStaticImage = createReactIOSNativeComponentClass({
-  validAttributes: merge(CommonImageViewAttributes, { tintColor: true }),
-  uiViewClassName: 'RCTStaticImage',
-});
-
-var RCTNetworkImage = createReactIOSNativeComponentClass({
-  validAttributes: merge(CommonImageViewAttributes, { defaultImageSrc: true }),
-  uiViewClassName: 'RCTNetworkImageView',
-});
+  defaultImageSrc: true,
+  imageTag: true,
+  contentMode: true,
+};
+if (__DEV__) {
+  verifyPropTypes(Image, RCTStaticImage.viewConfig, nativeOnlyProps);
+  verifyPropTypes(Image, RCTNetworkImage.viewConfig, nativeOnlyProps);
+}
 
 module.exports = Image;
 });
@@ -21716,6 +21846,191 @@ var insetsDiffer = function(
 };
 
 module.exports = insetsDiffer;
+});
+__d('requireNativeComponent',["NativeModules","UnimplementedView","createReactIOSNativeComponentClass","deepDiffer","insetsDiffer","pointsDiffer","matricesDiffer","sizesDiffer","verifyPropTypes"],function(global, require, requireDynamic, requireLazy, module, exports) {  /**
+ * Copyright (c) 2015-present, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @providesModule requireNativeComponent
+ * @flow
+ */
+'use strict';
+
+var RCTUIManager = require('NativeModules').UIManager;
+var UnimplementedView = require('UnimplementedView');
+
+var createReactIOSNativeComponentClass = require('createReactIOSNativeComponentClass');
+var deepDiffer = require('deepDiffer');
+var insetsDiffer = require('insetsDiffer');
+var pointsDiffer = require('pointsDiffer');
+var matricesDiffer = require('matricesDiffer');
+var sizesDiffer = require('sizesDiffer');
+var verifyPropTypes = require('verifyPropTypes');
+
+/**
+ * Used to create React components that directly wrap native component
+ * implementations.  Config information is extracted from data exported from the
+ * RCTUIManager module.  You should also wrap the native component in a
+ * hand-written component with full propTypes definitions and other
+ * documentation - pass the hand-written component in as `wrapperComponent` to
+ * verify all the native props are documented via `propTypes`.
+ *
+ * If some native props shouldn't be exposed in the wrapper interface, you can
+ * pass null for `wrapperComponent` and call `verifyPropTypes` directly
+ * with `nativePropsToIgnore`;
+ *
+ * Common types are lined up with the appropriate prop differs with
+ * `TypeToDifferMap`.  Non-scalar types not in the map default to `deepDiffer`.
+ */
+function requireNativeComponent(
+  viewName        ,
+  wrapperComponent           
+)           {
+  var viewConfig = RCTUIManager.viewConfigs && RCTUIManager.viewConfigs[viewName];
+  if (!viewConfig) {
+    return UnimplementedView;
+  }
+  var nativeProps = Object.assign({},
+    RCTUIManager.viewConfigs.RCTView.nativeProps,
+    viewConfig.nativeProps
+  );
+  viewConfig.validAttributes = {};
+  for (var key in nativeProps) {
+    // TODO: deep diff by default in diffRawProperties instead of setting it here
+    var differ = TypeToDifferMap[nativeProps[key].type] || deepDiffer;
+    viewConfig.validAttributes[key] = {diff: differ};
+  }
+  if (__DEV__) {
+    wrapperComponent && verifyPropTypes(wrapperComponent, viewConfig);
+  }
+  return createReactIOSNativeComponentClass(viewConfig);
+}
+
+var TypeToDifferMap = {
+  // iOS Types
+  CATransform3D: matricesDiffer,
+  CGPoint: pointsDiffer,
+  CGSize: sizesDiffer,
+  UIEdgeInsets: insetsDiffer,
+  // Android Types
+  // (not yet implemented)
+};
+
+module.exports = requireNativeComponent;
+});
+__d('UnimplementedView',["React","StyleSheet","View"],function(global, require, requireDynamic, requireLazy, module, exports) {  /**
+ * Common implementation for a simple stubbed view. Simply applies the view's styles to the inner
+ * View component and renders its children.
+ *
+ * @providesModule UnimplementedView
+ */
+
+'use strict';
+
+var React = require('React');
+var StyleSheet = require('StyleSheet');
+var View = require('View');
+
+var UnimplementedView = React.createClass({displayName: "UnimplementedView",
+  setNativeProps: function() {
+    // Do nothing.
+    // This method is required in order to use this view as a Touchable* child.
+    // See ensureComponentIsNative.js for more info
+  },
+  render: function() {
+    return (
+      React.createElement(View, {style: [styles.unimplementedView, this.props.style]}, 
+        this.props.children
+      )
+    );
+  },
+});
+
+var styles = StyleSheet.create({
+  unimplementedView: {
+    borderWidth: 1,
+    borderColor: 'red',
+    alignSelf: 'flex-start',
+  }
+});
+
+module.exports = UnimplementedView;
+});
+__d('pointsDiffer',[],function(global, require, requireDynamic, requireLazy, module, exports) {  /**
+ * Copyright (c) 2015-present, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @providesModule pointsDiffer
+ * @flow
+ */
+'use strict';
+
+              
+             
+             
+ 
+
+var dummyPoint = {x: undefined, y: undefined};
+
+var pointsDiffer = function(one        , two        )       {
+  one = one || dummyPoint;
+  two = two || dummyPoint;
+  return one !== two && (
+    one.x !== two.x ||
+    one.y !== two.y
+  );
+};
+
+module.exports = pointsDiffer;
+});
+__d('verifyPropTypes',["ReactIOSStyleAttributes","View"],function(global, require, requireDynamic, requireLazy, module, exports) {  /**
+ * Copyright (c) 2015-present, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @providesModule verifyPropTypes
+ * @flow
+ */
+'use strict';
+
+var ReactIOSStyleAttributes = require('ReactIOSStyleAttributes');
+var View = require('View');
+
+function verifyPropTypes(
+  component          ,
+  viewConfig        ,
+  nativePropsToIgnore         
+) {
+  if (!viewConfig) {
+    return; // This happens for UnimplementedView.
+  }
+  var nativeProps = viewConfig.nativeProps;
+  for (var prop in viewConfig.nativeProps) {
+    if (!component.propTypes[prop] &&
+        !View.propTypes[prop] &&
+        !ReactIOSStyleAttributes[prop] &&
+        (!nativePropsToIgnore || !nativePropsToIgnore[prop])) {
+      throw new Error(
+        '`' + component.displayName + '` has no propType for native prop `' +
+        viewConfig.uiViewClassName + '.' + prop + '` of native type `' +
+        nativeProps[prop].type + '`'
+      );
+    }
+  }
+}
+
+module.exports = verifyPropTypes;
 });
 __d('ListView',["ListViewDataSource","React","NativeModules","ScrollView","ScrollResponder","StaticRenderer","react-timer-mixin/TimerMixin","logError","merge","isEmpty"],function(global, require, requireDynamic, requireLazy, module, exports) {  /**
  * Copyright (c) 2015, Facebook, Inc.  All rights reserved.
@@ -22653,7 +22968,7 @@ function isEmpty(obj) {
 
 module.exports = isEmpty;
 });
-__d('ScrollView',["EdgeInsetsPropType","Platform","PointPropType","NativeModules","React","ReactIOSTagHandles","ReactIOSViewAttributes","NativeModules","ScrollResponder","StyleSheet","StyleSheetPropType","View","ViewStylePropTypes","createReactIOSNativeComponentClass","deepDiffer","flattenStyle","insetsDiffer","invariant","pointsDiffer"],function(global, require, requireDynamic, requireLazy, module, exports) {  /**
+__d('ScrollView',["EdgeInsetsPropType","Platform","PointPropType","NativeModules","React","ReactIOSViewAttributes","NativeModules","ScrollResponder","StyleSheet","StyleSheetPropType","View","ViewStylePropTypes","createReactIOSNativeComponentClass","deepDiffer","flattenStyle","insetsDiffer","invariant","pointsDiffer","requireNativeComponent"],function(global, require, requireDynamic, requireLazy, module, exports) {  /**
  * Copyright (c) 2015-present, Facebook, Inc.
  * All rights reserved.
  *
@@ -22672,7 +22987,6 @@ var PointPropType = require('PointPropType');
 var RCTScrollView = require('NativeModules').UIManager.RCTScrollView;
 var RCTScrollViewConsts = RCTScrollView.Constants;
 var React = require('React');
-var ReactIOSTagHandles = require('ReactIOSTagHandles');
 var ReactIOSViewAttributes = require('ReactIOSViewAttributes');
 var RCTUIManager = require('NativeModules').UIManager;
 var ScrollResponder = require('ScrollResponder');
@@ -22687,6 +23001,7 @@ var flattenStyle = require('flattenStyle');
 var insetsDiffer = require('insetsDiffer');
 var invariant = require('invariant');
 var pointsDiffer = require('pointsDiffer');
+var requireNativeComponent = require('requireNativeComponent');
 
 var PropTypes = React.PropTypes;
 
@@ -22728,6 +23043,12 @@ var ScrollView = React.createClass({displayName: "ScrollView",
      * the `alwaysBounce*` props are true. The default value is true.
      */
     bounces: PropTypes.bool,
+    /**
+     * When true, gestures can drive zoom past min/max and the zoom will animate
+     * to the min/max value at gesture end, otherwise the zoom will not exceed
+     * the limits.
+     */
+    bouncesZoom: PropTypes.bool,
     /**
      * When true, the scroll view bounces horizontally when it reaches the end
      * even if the content is smaller than the scroll view itself. The default
@@ -22775,6 +23096,16 @@ var ScrollView = React.createClass({displayName: "ScrollView",
      * instead of vertically in a column. The default value is false.
      */
     horizontal: PropTypes.bool,
+    /**
+     * When true, the ScrollView will try to lock to only vertical or horizontal
+     * scrolling while dragging.  The default value is false.
+     */
+    directionalLockEnabled: PropTypes.bool,
+    /**
+     * When false, once tracking starts, won't try to drag if the touch moves.
+     * The default value is true.
+     */
+    canCancelContentTouches: PropTypes.bool,
     /**
      * Determines whether the keyboard gets dismissed in response to a drag.
      *   - 'none' (the default), drags do not dismiss the keyboard.
@@ -23014,6 +23345,7 @@ if (Platform.OS === 'android') {
     validAttributes: validAttributes,
     uiViewClassName: 'RCTScrollView',
   });
+  var RCTScrollView = requireNativeComponent('RCTScrollView', ScrollView);
 }
 
 module.exports = ScrollView;
@@ -23042,37 +23374,6 @@ var PointPropType = createStrictShapeTypeChecker({
 });
 
 module.exports = PointPropType;
-});
-__d('pointsDiffer',[],function(global, require, requireDynamic, requireLazy, module, exports) {  /**
- * Copyright (c) 2015-present, Facebook, Inc.
- * All rights reserved.
- *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
- *
- * @providesModule pointsDiffer
- * @flow
- */
-'use strict';
-
-              
-             
-             
- 
-
-var dummyPoint = {x: undefined, y: undefined};
-
-var pointsDiffer = function(one        , two        )       {
-  one = one || dummyPoint;
-  two = two || dummyPoint;
-  return one !== two && (
-    one.x !== two.x ||
-    one.y !== two.y
-  );
-};
-
-module.exports = pointsDiffer;
 });
 __d('ScrollResponder',["NativeModules","RCTDeviceEventEmitter","Subscribable","TextInputState","warning"],function(global, require, requireDynamic, requireLazy, module, exports) {  /**
  * Copyright (c) 2015-present, Facebook, Inc.
@@ -23835,6 +24136,23 @@ var MapView = React.createClass({displayName: "MapView",
     }),
 
     /**
+     * Map annotations with title/subtitle.
+     */
+    annotations: React.PropTypes.arrayOf(React.PropTypes.shape({
+      /**
+       * The location of the annotation.
+       */
+      latitude: React.PropTypes.number.isRequired,
+      longitude: React.PropTypes.number.isRequired,
+
+      /**
+       * Annotation title/subtile.
+       */
+      title: React.PropTypes.string,
+      subtitle: React.PropTypes.string,
+    })),
+
+    /**
      * Maximum size of area that can be displayed.
      */
     maxDelta: React.PropTypes.number,
@@ -23881,6 +24199,7 @@ var MapView = React.createClass({displayName: "MapView",
         pitchEnabled: this.props.pitchEnabled, 
         scrollEnabled: this.props.scrollEnabled, 
         region: this.props.region, 
+        annotations: this.props.annotations, 
         maxDelta: this.props.maxDelta, 
         minDelta: this.props.minDelta, 
         legalLabelInsets: this.props.legalLabelInsets, 
@@ -23904,6 +24223,7 @@ var RCTMap = createReactIOSNativeComponentClass({
       pitchEnabled: true,
       scrollEnabled: true,
       region: {diff: deepDiffer},
+      annotations: {diff: deepDiffer},
       maxDelta: true,
       minDelta: true,
       legalLabelInsets: {diff: insetsDiffer},
@@ -24706,7 +25026,7 @@ var RCTPickerIOS = createReactIOSNativeComponentClass({
 
 module.exports = PickerIOS;
 });
-__d('Navigator',["NativeModules","BackAndroid","InteractionMixin","NavigatorBreadcrumbNavigationBar","NavigatorInterceptor","NavigatorNavigationBar","NavigatorSceneConfigs","NavigatorStaticContextContainer","PanResponder","React","StaticContainer.react","StyleSheet","Subscribable","react-timer-mixin/TimerMixin","View","getNavigatorContext","clamp","invariant","keyMirror","merge","rebound/rebound"],function(global, require, requireDynamic, requireLazy, module, exports) {  /**
+__d('Navigator',["NativeModules","BackAndroid","InteractionMixin","NavigatorBreadcrumbNavigationBar","NavigatorInterceptor","NavigatorNavigationBar","NavigatorSceneConfigs","NavigatorStaticContextContainer","PanResponder","Platform","React","StaticContainer.react","StyleSheet","Subscribable","react-timer-mixin/TimerMixin","View","getNavigatorContext","clamp","invariant","keyMirror","merge","rebound/rebound"],function(global, require, requireDynamic, requireLazy, module, exports) {  /**
  * Copyright (c) 2015, Facebook, Inc.  All rights reserved.
  *
  * Facebook, Inc. (“Facebook”) owns all right, title and interest, including
@@ -24743,6 +25063,7 @@ var NavigatorNavigationBar = require('NavigatorNavigationBar');
 var NavigatorSceneConfigs = require('NavigatorSceneConfigs');
 var NavigatorStaticContextContainer = require('NavigatorStaticContextContainer');
 var PanResponder = require('PanResponder');
+var Platform = require('Platform');
 var React = require('React');
 var StaticContainer = require('StaticContainer.react');
 var StyleSheet = require('StyleSheet');
@@ -24779,7 +25100,7 @@ var styles = StyleSheet.create({
     bottom: 0,
     top: 0,
   },
-  presentNavItem: {
+  currentScene: {
     position: 'absolute',
     overflow: 'hidden',
     left: 0,
@@ -24787,7 +25108,7 @@ var styles = StyleSheet.create({
     bottom: 0,
     top: 0,
   },
-  futureNavItem: {
+  futureScene: {
     overflow: 'hidden',
     position: 'absolute',
     left: 0,
@@ -24995,9 +25316,10 @@ var Navigator = React.createClass({displayName: "Navigator",
       ),
       idStack: routeStack.map(function()  {return getuid();}),
       routeStack:routeStack,
-      // These are tracked to avoid rendering everything all the time.
-      updatingRangeStart: initialRouteIndex,
-      updatingRangeLength: initialRouteIndex + 1,
+      // `updatingRange*` allows us to only render the visible or staged scenes
+      // On first render, we will render every scene in the initialRouteStack
+      updatingRangeStart: 0,
+      updatingRangeLength: routeStack.length,
       // Either animating or gesturing.
       isAnimating: false,
       jumpToIndex: routeStack.length - 1,
@@ -25010,17 +25332,13 @@ var Navigator = React.createClass({displayName: "Navigator",
 
   componentWillMount: function() {
     this.parentNavigator = getNavigatorContext(this) || this.props.navigator;
+    this._subRouteFocus = [];
     this.navigatorContext = {
       setHandlerForRoute: this.setHandlerForRoute,
       request: this.request,
 
       parentNavigator: this.parentNavigator,
       getCurrentRoutes: this.getCurrentRoutes,
-      // We want to bubble focused routes to the top navigation stack. If we
-      // are a child navigator, this allows us to call props.navigator.on*Focus
-      // of the topmost Navigator
-      onWillFocus: this.props.onWillFocus,
-      onDidFocus: this.props.onDidFocus,
 
       // Legacy, imperitive nav actions. Use request when possible.
       jumpBack: this.jumpBack,
@@ -25049,8 +25367,7 @@ var Navigator = React.createClass({displayName: "Navigator",
     });
     this._itemRefs = {};
     this._interactionHandle = null;
-
-    this._emitWillFocus(this.state.presentedIndex);
+    this._emitWillFocus(this.state.routeStack[this.state.presentedIndex]);
   },
 
   request: function(action, arg1, arg2) {
@@ -25080,7 +25397,7 @@ var Navigator = React.createClass({displayName: "Navigator",
     if (this.state.presentedIndex === 0) {
       return false;
     }
-    this.pop();
+    this._popN(1);
     return true;
   },
 
@@ -25107,26 +25424,26 @@ var Navigator = React.createClass({displayName: "Navigator",
     animationConfig && this._configureSpring(animationConfig);
     this.spring.addListener(this);
     this.onSpringUpdate();
-    this._emitDidFocus(this.state.presentedIndex);
+    this._emitDidFocus(this.state.routeStack[this.state.presentedIndex]);
     if (this.parentNavigator) {
       this.parentNavigator.setHandler(this._handleRequest);
-    } else {
+    } else if (Platform.OS === 'android') {
       // There is no navigator in our props or context, so this is the
       // top-level navigator. We will handle back button presses here
-      BackAndroid.addEventListener('hardwareBackPress', this._handleBackPress);
+      BackAndroid.addEventListener('hardwareBackPress', this._handleAndroidBackPress);
     }
   },
 
   componentWillUnmount: function() {
     if (this.parentNavigator) {
       this.parentNavigator.setHandler(null);
-    } else {
-      BackAndroid.removeEventListener('hardwareBackPress', this._handleBackPress);
+    } else if (Platform.OS === 'android') {
+      BackAndroid.removeEventListener('hardwareBackPress', this._handleAndroidBackPress);
     }
   },
 
-  _handleBackPress: function() {
-    var didPop = this.request('pop');
+  _handleAndroidBackPress: function() {
+    var didPop = this.pop();
     if (!didPop) {
       BackAndroid.exitApp();
     }
@@ -25208,7 +25525,8 @@ var Navigator = React.createClass({displayName: "Navigator",
       var presentedIndex = this.state.toIndex;
       this.state.presentedIndex = presentedIndex;
       this.state.fromIndex = presentedIndex;
-      this._emitDidFocus(presentedIndex);
+      var didFocusRoute = this._subRouteFocus[presentedIndex] || this.state.routeStack[presentedIndex];
+      this._emitDidFocus(didFocusRoute);
       this._removePoppedRoutes();
       if (AnimationsDebugModule) {
         AnimationsDebugModule.stopRecordingFps(Date.now());
@@ -25228,7 +25546,8 @@ var Navigator = React.createClass({displayName: "Navigator",
     this.state.isAnimating = true;
     this.spring.setVelocity(v);
     this.spring.setEndValue(1);
-    this._emitWillFocus(this.state.toIndex);
+    var willFocusRoute = this._subRouteFocus[this.state.toIndex] || this.state.routeStack[this.state.toIndex];
+    this._emitWillFocus(willFocusRoute);
   },
 
   _transitionToFromIndexWithVelocity: function(v) {
@@ -25240,25 +25559,31 @@ var Navigator = React.createClass({displayName: "Navigator",
     this.spring.setEndValue(0);
   },
 
-  _emitDidFocus: function(index) {
-    var route = this.state.routeStack[index];
+  _emitDidFocus: function(route) {
+    if (this._lastDidFocus === route) {
+      return;
+    }
+    this._lastDidFocus = route;
     if (this.props.onDidFocus) {
       this.props.onDidFocus(route);
-    } else if (this.props.navigator && this.props.navigator.onDidFocus) {
-      this.props.navigator.onDidFocus(route);
+    } else if (this.parentNavigator && this.parentNavigator.onDidFocus) {
+      this.parentNavigator.onDidFocus(route);
     }
   },
 
-  _emitWillFocus: function(index) {
-    var route = this.state.routeStack[index];
+  _emitWillFocus: function(route) {
+    if (this._lastWillFocus === route) {
+      return;
+    }
+    this._lastWillFocus = route;
     var navBar = this._navBar;
     if (navBar && navBar.handleWillFocus) {
       navBar.handleWillFocus(route);
     }
     if (this.props.onWillFocus) {
       this.props.onWillFocus(route);
-    } else if (this.props.navigator && this.props.navigator.onWillFocus) {
-      this.props.navigator.onWillFocus(route);
+    } else if (this.parentNavigator && this.parentNavigator.onWillFocus) {
+      this.parentNavigator.onWillFocus(route);
     }
   },
 
@@ -25561,7 +25886,7 @@ var Navigator = React.createClass({displayName: "Navigator",
     }, requestTransitionAndResetUpdatingRange);
   },
 
-  popN: function(n) {
+  _popN: function(n) {
     if (n === 0 || !this._canNavigate()) {
       return;
     }
@@ -25576,11 +25901,7 @@ var Navigator = React.createClass({displayName: "Navigator",
   },
 
   pop: function() {
-    // TODO (t6707686): remove this parentNavigator call after transitioning call sites to `.request('pop')`
-    if (this.parentNavigator && this.state.routeStack.length === 1) {
-      return this.parentNavigator.pop();
-    }
-    this.popN(1);
+    return this.request('pop');
   },
 
   /**
@@ -25617,8 +25938,8 @@ var Navigator = React.createClass({displayName: "Navigator",
     }, function()  {
       this._resetUpdatingRange();
       if (index === this.state.presentedIndex) {
-        this._emitWillFocus(this.state.presentedIndex);
-        this._emitDidFocus(this.state.presentedIndex);
+        this._emitWillFocus(route);
+        this._emitDidFocus(route);
       }
     }.bind(this));
   },
@@ -25652,7 +25973,7 @@ var Navigator = React.createClass({displayName: "Navigator",
 
   popToRoute: function(route) {
     var numToPop = this._getNumToPopForRoute(route);
-    this.popN(numToPop);
+    this._popN(numToPop);
   },
 
   replacePreviousAndPop: function(route) {
@@ -25703,9 +26024,42 @@ var Navigator = React.createClass({displayName: "Navigator",
     }
   },
 
-  _routeToOptimizedStackItem: function(route, i) {
-    var shouldUpdateChild =
-      this.state.updatingRangeLength !== 0 &&
+  _renderOptimizedScenes: function() {
+    // To avoid rendering scenes that are not visible, we use
+    // updatingRangeStart and updatingRangeLength to track the scenes that need
+    // to be updated.
+
+    // To avoid visual glitches, we never re-render scenes during a transition.
+    // We assume that `state.updatingRangeLength` will have a length during the
+    // initial render of any scene
+    var shouldRenderScenes = !this.state.isAnimating &&
+      this.state.updatingRangeLength !== 0;
+    if (shouldRenderScenes) {
+      return (
+        React.createElement(StaticContainer, {shouldUpdate: true}, 
+          React.createElement(View, React.__spread({
+            style: styles.transitioner}, 
+            this.panGesture.panHandlers, 
+            {onResponderTerminationRequest: 
+              this._handleResponderTerminationRequest
+            }), 
+            this.state.routeStack.map(this._renderOptimizedScene)
+          )
+        )
+      );
+    }
+    // If no scenes are changing, we can save render time. React will notice
+    // that we are rendering a StaticContainer in the same place, so the
+    // existing element will be updated. When React asks the element
+    // shouldComponentUpdate, the StaticContainer will return false, and the
+    // children from the previous reconciliation will remain.
+    return (
+      React.createElement(StaticContainer, {shouldUpdate: false})
+    );
+  },
+
+  _renderOptimizedScene: function(route, i) {
+    var shouldRenderScene =
       i >= this.state.updatingRangeStart &&
       i <= this.state.updatingRangeStart + this.state.updatingRangeLength;
     var sceneNavigatorContext = Object.assign({},
@@ -25713,51 +26067,52 @@ var Navigator = React.createClass({displayName: "Navigator",
       {route:route,
       setHandler: function(handler)  {
         this.navigatorContext.setHandlerForRoute(route, handler);
+      }.bind(this),
+      onWillFocus: function(childRoute)  {
+        this._subRouteFocus[i] = childRoute;
+        if (this.state.presentedIndex === i) {
+          this._emitWillFocus(childRoute);
+        }
+      }.bind(this),
+      onDidFocus: function(childRoute)  {
+        this._subRouteFocus[i] = childRoute;
+        if (this.state.presentedIndex === i) {
+          this._emitDidFocus(childRoute);
+        }
       }.bind(this)
     });
-    var child = this.props.renderScene(
-      route,
-      sceneNavigatorContext
-    );
-    var initialSceneStyle =
-      i === this.state.presentedIndex ? styles.presentNavItem : styles.futureNavItem;
+    var scene = shouldRenderScene ?
+      this._renderScene(route, i, sceneNavigatorContext) : null;
     return (
       React.createElement(NavigatorStaticContextContainer, {
         navigatorContext: sceneNavigatorContext, 
         key: 'nav' + i, 
-        shouldUpdate: shouldUpdateChild}, 
-        React.createElement(View, {
-          key: this.state.idStack[i], 
-          ref: 'scene_' + i, 
-          style: [initialSceneStyle, this.props.sceneStyle]}, 
-          React.cloneElement(child, {
-            ref: this._handleItemRef.bind(null, this.state.idStack[i]),
-          })
-        )
+        shouldUpdate: shouldRenderScene}, 
+        scene
       )
     );
   },
 
-  renderNavigationStackItems: function() {
-    var shouldRecurseToNavigator = this.state.updatingRangeLength !== 0;
-    // If not recursing update to navigator at all, may as well avoid
-    // computation of navigator children.
-    var items = shouldRecurseToNavigator ?
-      this.state.routeStack.map(this._routeToOptimizedStackItem) : null;
-
+  _renderScene: function(route, i, sceneNavigatorContext) {
+    var child = this.props.renderScene(
+      route,
+      sceneNavigatorContext
+    );
+    var initialSceneStyle = i === this.state.presentedIndex ?
+      styles.currentScene : styles.futureScene;
     return (
-      React.createElement(StaticContainer, {shouldUpdate: shouldRecurseToNavigator}, 
-        React.createElement(View, React.__spread({
-          style: styles.transitioner}, 
-          this.panGesture.panHandlers, 
-          {onResponderTerminationRequest: this._handleResponderTerminationRequest}), 
-          items
-        )
+      React.createElement(View, {
+        key: this.state.idStack[i], 
+        ref: 'scene_' + i, 
+        style: [initialSceneStyle, this.props.sceneStyle]}, 
+        React.cloneElement(child, {
+          ref: this._handleItemRef.bind(null, this.state.idStack[i]),
+        })
       )
     );
   },
 
-  renderNavigationStackBar: function() {
+  _renderNavigationBar: function() {
     if (!this.props.navigationBar) {
       return null;
     }
@@ -25771,8 +26126,8 @@ var Navigator = React.createClass({displayName: "Navigator",
   render: function() {
     return (
       React.createElement(View, {style: [styles.container, this.props.style]}, 
-        this.renderNavigationStackItems(), 
-        this.renderNavigationStackBar()
+        this._renderOptimizedScenes(), 
+        this._renderNavigationBar()
       )
     );
   },
@@ -26545,6 +26900,24 @@ var NativeModules = require('NativeModules');
 var invariant = require('invariant');
 
 var dimensions = NativeModules.UIManager.Dimensions;
+
+// We calculate the window dimensions in JS so that we don't encounter loss of
+// precision in transferring the dimensions (which could be non-integers) over
+// the bridge.
+if (dimensions.windowPhysicalPixels) {
+  // parse/stringify => Clone hack
+  dimensions = JSON.parse(JSON.stringify(dimensions));
+
+  var windowPhysicalPixels = dimensions.windowPhysicalPixels;
+  dimensions.window = {
+    width: windowPhysicalPixels.width / windowPhysicalPixels.scale,
+    height: windowPhysicalPixels.height / windowPhysicalPixels.scale,
+    scale: windowPhysicalPixels.scale,
+  };
+
+  // delete so no callers rely on this existing
+  delete dimensions.windowPhysicalPixels;
+}
 
 function Dimensions(){}
   /**
@@ -27999,7 +28372,7 @@ var currentCentroidY = TouchHistoryMath.currentCentroidY;
  *         // The accumulated gesture distance since becoming responder is
  *         // gestureState.d{x,y}
  *       },
- *       onResponderTerminationRequest: (evt, gestureState) => true,
+ *       onPanResponderTerminationRequest: (evt, gestureState) => true,
  *       onPanResponderRelease: (evt, gestureState) => {
  *         // The user has released all touches while this view is the
  *         // responder. This typically means a gesture has succeeded
@@ -29595,7 +29968,7 @@ __d('rebound/rebound',[],function(global, require, requireDynamic, requireLazy, 
  *  of patent rights can be found in the PATENTS file in the same directory.
  */
 });
-__d('SliderIOS',["NativeMethodsMixin","ReactPropTypes","React","ReactIOSViewAttributes","StyleSheet","View","createReactIOSNativeComponentClass","merge"],function(global, require, requireDynamic, requireLazy, module, exports) {  /**
+__d('SliderIOS',["NativeMethodsMixin","Platform","ReactPropTypes","React","ReactIOSViewAttributes","StyleSheet","View","createReactIOSNativeComponentClass","merge","requireNativeComponent"],function(global, require, requireDynamic, requireLazy, module, exports) {  /**
  * Copyright (c) 2015-present, Facebook, Inc.
  * All rights reserved.
  *
@@ -29609,6 +29982,7 @@ __d('SliderIOS',["NativeMethodsMixin","ReactPropTypes","React","ReactIOSViewAttr
 'use strict';
 
 var NativeMethodsMixin = require('NativeMethodsMixin');
+var Platform = require('Platform');
 var PropTypes = require('ReactPropTypes');
 var React = require('React');
 var ReactIOSViewAttributes = require('ReactIOSViewAttributes');
@@ -29618,6 +29992,7 @@ var View = require('View');
 var createReactIOSNativeComponentClass =
   require('createReactIOSNativeComponentClass');
 var merge = require('merge');
+var requireNativeComponent = require('requireNativeComponent');
 
                     
 
@@ -29693,17 +30068,21 @@ var styles = StyleSheet.create({
   },
 });
 
-var validAttributes = Object.assign({},
-  ReactIOSViewAttributes.UIView,
-  {value: true,
-  minimumValue: true,
-  maximumValue: true
-});
+if (Platform.OS === 'ios') {
+  var RCTSlider = requireNativeComponent('RCTSlider', SliderIOS);
+} else {
+  var validAttributes = Object.assign({},
+    ReactIOSViewAttributes.UIView,
+    {value: true,
+    minimumValue: true,
+    maximumValue: true
+  });
 
-var RCTSlider = createReactIOSNativeComponentClass({
-  validAttributes: validAttributes,
-  uiViewClassName: 'RCTSlider',
-});
+  var RCTSlider = createReactIOSNativeComponentClass({
+    validAttributes: validAttributes,
+    uiViewClassName: 'RCTSlider',
+  });
+}
 
 module.exports = SliderIOS;
 });
@@ -29891,7 +30270,7 @@ var RCTTabBar = createReactIOSNativeComponentClass(config);
 
 module.exports = TabBarIOS;
 });
-__d('TabBarItemIOS',["Image","React","ReactIOSViewAttributes","Dimensions","StaticContainer.react","StyleSheet","View","createReactIOSNativeComponentClass","merge"],function(global, require, requireDynamic, requireLazy, module, exports) {  /**
+__d('TabBarItemIOS',["Image","React","ReactIOSViewAttributes","StaticContainer.react","StyleSheet","View","createReactIOSNativeComponentClass","merge"],function(global, require, requireDynamic, requireLazy, module, exports) {  /**
  * Copyright (c) 2015-present, Facebook, Inc.
  * All rights reserved.
  *
@@ -29907,7 +30286,6 @@ __d('TabBarItemIOS',["Image","React","ReactIOSViewAttributes","Dimensions","Stat
 var Image = require('Image');
 var React = require('React');
 var ReactIOSViewAttributes = require('ReactIOSViewAttributes');
-var Dimensions = require('Dimensions');
 var StaticContainer = require('StaticContainer.react');
 var StyleSheet = require('StyleSheet');
 var View = require('View');
@@ -30027,8 +30405,10 @@ var TabBarItemIOS = React.createClass({displayName: "TabBarItemIOS",
 var styles = StyleSheet.create({
   tab: {
     position: 'absolute',
-    width: Dimensions.get('window').width,
-    height: Dimensions.get('window').height,
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0,
   }
 });
 
@@ -31140,6 +31520,8 @@ var RCTTextFieldAttributes = merge(RCTTextViewAttributes, {
   caretHidden: true,
   enabled: true,
   clearButtonMode: true,
+  clearTextOnFocus: true,
+  selectTextOnFocus: true,
 });
 
 var onlyMultiline = {
@@ -31152,7 +31534,7 @@ var notMultiline = {
   onSubmitEditing: true,
 };
 
-var TextInputAndroidAttributes = {
+var AndroidTextInputAttributes = {
   autoCapitalize: true,
   autoCorrect: true,
   autoFocus: true,
@@ -31160,14 +31542,19 @@ var TextInputAndroidAttributes = {
   multiline: true,
   password: true,
   placeholder: true,
-  value: true,
+  text: true,
   testID: true,
 };
 
-var AndroidTextInput = createReactIOSNativeComponentClass({
-  validAttributes: TextInputAndroidAttributes,
+var viewConfigIOS = {
+  uiViewClassName: 'RCTTextField',
+  validAttributes: RCTTextFieldAttributes,
+};
+
+var viewConfigAndroid = {
   uiViewClassName: 'AndroidTextInput',
-});
+  validAttributes: AndroidTextInputAttributes,
+};
 
 var crossPlatformKeyboardTypeMap = {
   'numeric': 'decimal-pad',
@@ -31349,7 +31736,17 @@ var TextInput = React.createClass({displayName: "TextInput",
       'unless-editing',
       'always',
     ]),
-
+    /**
+     * If true, clears the text field automatically when editing begins
+     */
+    clearTextOnFocus: PropTypes.bool,
+    /**
+     * If true, selected the text automatically when editing begins
+     */
+    selectTextOnFocus: PropTypes.bool,
+    /**
+     * Styles
+     */
     style: Text.propTypes.style,
     /**
      * Used to locate this view in end-to-end tests.
@@ -31363,10 +31760,8 @@ var TextInput = React.createClass({displayName: "TextInput",
    */
   mixins: [NativeMethodsMixin, TimerMixin],
 
-  viewConfig: {
-    uiViewClassName: 'RCTTextField',
-    validAttributes: RCTTextFieldAttributes,
-  },
+  viewConfig: ((Platform.OS === 'ios' ? viewConfigIOS :
+    (Platform.OS === 'android' ? viewConfigAndroid : {}))         ),
 
   isFocused: function()          {
     return TextInputState.currentlyFocusedField() ===
@@ -31512,7 +31907,9 @@ var TextInput = React.createClass({displayName: "TextInput",
           text: this.state.bufferedValue, 
           autoCapitalize: autoCapitalize, 
           autoCorrect: this.props.autoCorrect, 
-          clearButtonMode: clearButtonMode}
+          clearButtonMode: clearButtonMode, 
+          clearTextOnFocus: this.props.clearTextOnFocus, 
+          selectTextOnFocus: this.props.selectTextOnFocus}
         );
     } else {
       for (var propKey in notMultiline) {
@@ -31589,7 +31986,7 @@ var TextInput = React.createClass({displayName: "TextInput",
         onSubmitEditing: this.props.onSubmitEditing, 
         password: this.props.password || this.props.secureTextEntry, 
         placeholder: this.props.placeholder, 
-        value: this.state.bufferedValue}
+        text: this.state.bufferedValue}
       );
 
     return (
@@ -31657,6 +32054,11 @@ var RCTTextView = createReactIOSNativeComponentClass({
 var RCTTextField = createReactIOSNativeComponentClass({
   validAttributes: RCTTextFieldAttributes,
   uiViewClassName: 'RCTTextField',
+});
+
+var AndroidTextInput = createReactIOSNativeComponentClass({
+  validAttributes: AndroidTextInputAttributes,
+  uiViewClassName: 'AndroidTextInput',
 });
 
 module.exports = TextInput;
@@ -33091,7 +33493,7 @@ var TouchableOpacity = React.createClass({displayName: "TouchableOpacity",
 
   touchableHandlePress: function() {
     this.setOpacityTo(1.0);
-    this.props.onPress && this.props.onPress();
+    this.props.onPress && this.props.onPress(this.refs[CHILD_REF]);
   },
 
   touchableHandleLongPress: function() {
@@ -37142,6 +37544,10 @@ var DEVICE_NOTIF_EVENT = 'openURL';
  *   }
  * });
  * ```
+ *
+ * _The iOS simulator does not support the `mailto:` and `tel:` schemas
+ * because the Mail and Phone apps are not installed - you will need to test
+ * them on a device._
  */
 function LinkingIOS(){}
   /**
@@ -38928,13 +39334,15 @@ var CategoryStore = {
 
 
 module.exports = CategoryStore;});
-__d('nativeWu/views/albumTracks',["nativeWu/libraries/config","react-native/Libraries/react-native/react-native","nativeWu/libraries/category","nativeWu/libraries/renderer","nativeWu/views/EqIcon","FAKIconImage"],function(global, require, requireDynamic, requireLazy, module, exports) {  var BACKEND = require("nativeWu/libraries/config").BACKEND;
+__d('nativeWu/views/albumTracks',["nativeWu/libraries/config","react-native/Libraries/react-native/react-native","nativeWu/libraries/category","nativeWu/libraries/renderer","nativeWu/views/EqIcon","FAKIconImage","nativeWu/views/modal","Dimensions"],function(global, require, requireDynamic, requireLazy, module, exports) {  var BACKEND = require("nativeWu/libraries/config").BACKEND;
 
 var React = require('react-native/Libraries/react-native/react-native');
 var CategoryStore = require('nativeWu/libraries/category')
 var renderer = require("nativeWu/libraries/renderer")
 var EqIcon = require('nativeWu/views/EqIcon')
 var Icon = require('FAKIconImage');
+var Modal = require('nativeWu/views/modal');
+var DeviceHeight = require('Dimensions').get('window').height;
 
 var $__0=
   
@@ -38946,6 +39354,7 @@ var $__0=
   
   React,StyleSheet=$__0.StyleSheet,Text=$__0.Text,Image=$__0.Image,ListView=$__0.ListView,TouchableHighlight=$__0.TouchableHighlight,TouchableOpacity=$__0.TouchableOpacity,View=$__0.View;
 
+
 var AlbumTracks = React.createClass({displayName: "AlbumTracks",
   getInitialState: function(){
     return {
@@ -38955,6 +39364,8 @@ var AlbumTracks = React.createClass({displayName: "AlbumTracks",
       }),
       loaded: false,
       animation: true,
+      showModal: false,
+      modalPosition: {top:0,left:0,width: 50},
     }; 
   },
   fetchData: function(){
@@ -39022,6 +39433,19 @@ var AlbumTracks = React.createClass({displayName: "AlbumTracks",
     renderer.playAlbumTracks(this.props.filter.Artist,sectionID,rowID);
     this.updateTrack({_id:id},"LOADING")
   },
+  showModal: function(node,trackID,sectionID){
+    node.measure(function(x,y,w,h,px,py) {
+      this.setState({
+        showModal: true,
+        modalFilter: sectionID ? {Album: sectionID, Artist: this.props.filter.Artist} : {_id: trackID},
+        modalPosition: {
+          top: py + h / 2,
+          left: px + w / 2,
+          width: w,
+        }
+      }) 
+    }.bind(this));
+  },
   renderTrack: function(track, sectionID, rowID){
     return(
         React.createElement(TouchableHighlight, {onPress: function()  {return this.pressTrack(sectionID, rowID, track._id);}.bind(this)}, 
@@ -39033,7 +39457,17 @@ var AlbumTracks = React.createClass({displayName: "AlbumTracks",
                 :
                 React.createElement(Text, {style: styles.trackNumber}, track.TrackNumber), 
               
-              React.createElement(Text, {style: styles.title}, track.Title)
+              React.createElement(Text, {numberOfLines: 1, style: styles.title}, track.Title), 
+              React.createElement(TouchableOpacity, {onPress: function(node) {return this.showModal(node,track._id);}.bind(this)}, 
+                React.createElement(View, {style: styles.moreHolder}, 
+                  React.createElement(Icon, {
+                    name: "ion|ios-more-outline", 
+                    size: 24, 
+                    color: "black", 
+                    style: styles.moreIcon}
+                  )
+                )
+              )
             )
           )
         )
@@ -39063,12 +39497,22 @@ var AlbumTracks = React.createClass({displayName: "AlbumTracks",
         
         React.createElement(View, {style: styles.rightContainer}, 
           React.createElement(Text, {style: styles.sectionTitle}, sectionID), 
-          React.createElement(TouchableOpacity, {onPress: function() {return this.pressIcon(sectionID);}.bind(this)}, 
-            React.createElement(Icon, {
-              name: "foundation|play-circle", 
-              size: 45, 
-              color: "#AB3C3C", 
-              style: styles.largeIcon}
+          React.createElement(View, {style: styles.sectionButtons}, 
+            React.createElement(TouchableOpacity, {onPress: function(node) {return this.pressIcon(sectionID);}.bind(this)}, 
+              React.createElement(Icon, {
+                name: "foundation|play-circle", 
+                size: 45, 
+                color: "#AB3C3C", 
+                style: styles.largeIcon}
+              )
+            ), 
+            React.createElement(TouchableOpacity, {onPress: function(node) {return this.showModal(node,null,sectionID);}.bind(this)}, 
+              React.createElement(Icon, {
+                name: "ion|ios-more-outline", 
+                size: 45, 
+                color: "#AB3C3C", 
+                style: styles.largeIcon}
+              )
             )
           )
         )
@@ -39084,6 +39528,19 @@ var AlbumTracks = React.createClass({displayName: "AlbumTracks",
       )
     );
   },
+  showModalTransition: function(transition) {
+    transition('opacity', {duration: 200, begin: 0, end: 1});
+    transition('height', {duration: 200, begin: DeviceHeight * 2, end: DeviceHeight});
+  },
+  hideModalTransition: function(transition) {
+    transition('height', {duration: 200, begin: DeviceHeight, end: DeviceHeight * 2, reset: true});
+    transition('opacity', {duration: 200, begin: 1, end: 0});
+  },
+  closeModal: function(){
+    this.setState({
+      showModal: false
+    })
+  },
   render: function() {
     if(!this.state.loaded)
       return this.renderLoading();
@@ -39095,15 +39552,37 @@ var AlbumTracks = React.createClass({displayName: "AlbumTracks",
           renderRow: this.renderTrack, 
           renderSectionHeader: this.renderSection, 
           pageSize: 50, 
+          ref: "list", 
           initialListSize: 150, 
           style: styles.listView}
-        )
+        ), 
+        this.state.showModal ? 
+          React.createElement(Modal, {position: this.state.modalPosition, 
+                  onClose: this.closeModal, 
+                  filter: this.state.modalFilter}
+          )
+          :
+          null
+        
+
       )
     );
   }
 })
 
 var styles = StyleSheet.create({
+  addView: {
+    marginLeft: 48,
+    marginRight: 48,
+    padding: 16,
+    borderRadius: 3,
+    borderWidth: 1,
+    borderColor: "rgba(0,0,0,0.3)",
+  },
+  addOption: {
+    fontSize: 16,
+    paddingBottom: 8,
+  },
   listContainer: {
     flex: 1
   },
@@ -39139,17 +39618,17 @@ var styles = StyleSheet.create({
   },
   trackRowContainer: {
     flex: 1,
-    paddingLeft: 16,
-    paddingRight: 16,
     backgroundColor: "#FFFFFF",
   },
   trackRow: {
+    paddingLeft: 16,
     borderBottomWidth: 1,
     borderBottomColor: "rgba(0,0,0,0.1)",
     flex: 1,
-    paddingBottom: 16,
-    paddingTop: 16,
     flexDirection: "row",
+    overflow: "hidden",
+    alignItems: "center",
+    height: 48,
   },
   rightContainer: {
     flex: 1,
@@ -39158,7 +39637,8 @@ var styles = StyleSheet.create({
     marginRight: 8
   },
   title: {
-    fontSize: 16,
+    flex: 1,
+    fontSize: 14,
     marginLeft: 16,
     fontWeight: "600",
     textAlign: 'left',
@@ -39184,6 +39664,20 @@ var styles = StyleSheet.create({
     width: 45,
     height: 45,
     marginLeft: 8,
+  },
+  moreHolder: {
+    alignSelf: "stretch",
+    flexDirection: "row",
+    width: 48,
+    paddingLeft: 8,
+  },
+  moreIcon: {
+    height: 24,
+    width: 24,
+    alignSelf: "center",
+  },
+  sectionButtons: {
+    flexDirection: "row",
   },
 });
 
@@ -39238,20 +39732,14 @@ var RendererStore = Object.assign(new EventEmitter(),{
 
     	AppStateIOS.addEventListener('change', this._handleStateChange.bind(this));
 	},
-	playAlbumTracks: function(artist,album,trackNumber,id){
-		var uuid = this.uuid,
-			filter = {
-				Artist: artist,
-				Album: album,
-				TrackNumberGT: trackNumber,
-			}
+	_play: function(filter,verb){
+		var uuid = this.uuid;
 
 		if(!uuid){
 			return Promise.reject(new Error("No renderer selected"));
 		}else{
-			console.log("play tracks")
 			return (
-				fetch(BACKEND+"/api/renderers/"+uuid+"/playNow",{
+				fetch(BACKEND+"/api/renderers/"+uuid+"/"+verb,{
 					method: "put",
 					body: serializeFilter(filter),
 					headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -39259,8 +39747,36 @@ var RendererStore = Object.assign(new EventEmitter(),{
 				.then(function(res)   {return res.json();})
 				.then(function(info)  {return console.log("got info",info);})
 				["catch"](function(err) {return console.log("play album err",err);})
-				.done()
 			)
+		}
+	},
+	playAlbumTracks: function(artist,album,trackNumber,id){
+		var filter = {
+				Artist: artist,
+				Album: album,
+				TrackNumberGT: trackNumber,
+			}
+
+		return this._play(filter,"playNow");
+	},
+	queueNext: function(filter){
+		return this._play(filter,"playNext");
+	},
+	addToQueue: function(filter){
+		var url = BACKEND + "/api/playlists/" + this.playerState.quickList
+
+		if(!this.playerState.quickList){
+			return Promise.reject(new Error("No renderer selected"));
+		}else{
+			return fetch(url,{
+				method: "put",
+				body: serializeFilter(filter),
+				headers: { "Content-Type": "application/x-www-form-urlencoded" },
+			})
+			.then(function(res)  {
+				return res.json()
+			})
+			["catch"](function(err) {return console.log("play addToQueue err",err);})
 		}
 	},
 	togglePlay: function(){
@@ -48228,7 +48744,6 @@ var insetsDiffer = require('insetsDiffer');
 var invariant = require('invariant');
 var merge = require('merge');
 var warning = require('warning');
-
 var deepDiffer = require('deepDiffer');
 
 var FAKIconImage = React.createClass({displayName: "FAKIconImage",
@@ -48311,6 +48826,187 @@ var FAKIconImageView = createReactIOSNativeComponentClass({
 });
 
 module.exports = FAKIconImage;});
+__d('nativeWu/views/modal',["react-native/Libraries/react-native/react-native","nativeWu/libraries/renderer","NavigatorSceneConfigs","Dimensions","Dimensions","Dimensions","PixelRatio","buildStyleInterpolator"],function(global, require, requireDynamic, requireLazy, module, exports) {  
+
+var React = require('react-native/Libraries/react-native/react-native');
+var renderer = require("nativeWu/libraries/renderer")
+
+var $__0=
+  
+  
+  
+  
+  
+  React,StyleSheet=$__0.StyleSheet,Text=$__0.Text,View=$__0.View,TouchableHighlight=$__0.TouchableHighlight,TouchableWithoutFeedback=$__0.TouchableWithoutFeedback;
+
+
+var NavigatorSceneConfigs = require('NavigatorSceneConfigs');
+var DeviceHeight = require('Dimensions').get('window').height;
+var DeviceWidth = require('Dimensions').get('window').width;
+
+
+var Dimensions = require('Dimensions');
+var PixelRatio = require('PixelRatio');
+
+var buildStyleInterpolator = require('buildStyleInterpolator');
+var ToTheLeft = {
+  transformTranslate: {
+    from: {x: 0, y: 0, z: 0},
+    to: {x: -100, y: 100, z: 0},
+    min: 0,
+    max: 1,
+    type: 'linear',
+    extrapolate: true,
+    round: PixelRatio.get(),
+  },
+  opacity: {
+    value: 1.0,
+    type: 'constant',
+  },
+};
+
+var ToTheRight = {
+  transformTranslate: {
+    from: {x: 0, y: 0, z: 0},
+    to: {x: 200, y: 100, z: 0},
+    min: 0,
+    max: 1,
+    type: 'linear',
+    extrapolate: true,
+    round: PixelRatio.get(),
+  },
+  opacity: {
+    value: 1.0,
+    type: 'constant',
+  },
+};
+
+
+
+var Modal = React.createClass({displayName: "Modal",
+	ANIMATION_DURATION: 100,
+	ANIMATION_LEFT: buildStyleInterpolator(ToTheLeft),
+	ANIMATION_RIGHT: buildStyleInterpolator(ToTheRight),
+	positionPopup: function(){
+		var pos = this.props.position,
+			top = pos.top + 100 > DeviceHeight ? DeviceHeight - 100 : pos.top,
+			style = {
+				top: top,
+			};
+
+		if(pos.left < DeviceWidth / 2){
+			style.left = pos.left;
+		}else{
+			style.right = DeviceWidth - pos.left;
+		}
+
+
+		return style;
+	},
+	playNext: function(){
+		renderer.queueNext(this.props.filter);
+		this.close();
+	},
+	addToQueue: function(){
+		renderer.addToQueue(this.props.filter);
+		this.close();
+	},
+	close: function(){
+		this.props.onClose();
+	},
+	animate: function(){
+		var styleToUse = {}
+		var progress = Math.min((Date.now() - this.startTime) / this.ANIMATION_DURATION,1);
+		this.animation(styleToUse,progress);
+		this.refs.container.setNativeProps(styleToUse);
+		this.refs.overlay.setNativeProps({opacity: progress})
+		if(progress < 1)
+			window.requestAnimationFrame(this.animate);
+
+	},
+	componentDidMount: function(){
+		this.startTime = Date.now();
+		var pos = this.props.position;
+		if(pos.left < DeviceWidth / 2){
+			this.animation = this.ANIMATION_RIGHT
+		}else{
+			this.animation = this.ANIMATION_LEFT
+		}
+		window.requestAnimationFrame(this.animate);
+	},
+	render: function(){
+		var positionStyle = this.positionPopup(),
+			popupStyle = positionStyle.left ? styles.popupLeft : styles.popupRight;
+		return (
+			React.createElement(TouchableWithoutFeedback, {onPress: this.close}, 
+				React.createElement(View, {ref: "overlay", style: styles.overlay}, 
+					React.createElement(View, {style: [styles.overflowContainer,positionStyle]}, 
+						React.createElement(View, {ref: "container", style: [styles.popup, popupStyle]}, 
+							React.createElement(TouchableHighlight, {onPress: this.playNext}, 
+								React.createElement(View, {style: [styles.optionDivider,styles.bgWhite]}, 
+										React.createElement(Text, {style: styles.option}, "Play next")
+								)
+							), 
+							React.createElement(TouchableHighlight, {onPress: this.addToQueue}, 
+								React.createElement(View, {style: styles.bgWhite}, 
+									React.createElement(Text, {style: styles.option}, "Add to queue")
+								)
+							)
+						)
+					)
+				)
+			)
+		)
+	}
+})
+
+var styles = StyleSheet.create({
+	overlay: {
+		position: "absolute",
+		top: 0,
+		left: 0,
+		right: 0,
+		bottom: 0,
+		opacity: 0,
+		backgroundColor: "rgba(0,0,0,0.3)"
+	},
+	overflowContainer: {
+		width: 200,
+		height: 200,
+		position: "absolute",
+		right: 48,
+		top: 100,
+		borderRadius: 3,
+		overflow: "hidden",
+	},
+	popup: {
+		width: 200,
+		position: "absolute",
+		top: -100,
+		backgroundColor: "white",
+	},
+	popupLeft:{
+		left: -200,
+	},
+	popupRight: {
+		right: -100,
+	},
+	optionDivider: {
+		borderBottomWidth: 1,
+		borderColor: "rgba(0,0,0,0.2)",
+	},
+	option: {
+		fontSize: 16,
+		padding: 8,
+		backgroundColor: "white",
+	},
+	bgWhite: {
+		backgroundColor: "white",
+	}
+})
+
+module.exports = Modal;
+});
 __d('nativeWu/views/JumpTable',["NativeMethodsMixin","ReactPropTypes","React","ReactIOSViewAttributes","StyleSheet","View","createReactIOSNativeComponentClass","merge","deepDiffer"],function(global, require, requireDynamic, requireLazy, module, exports) {  'use strict';
 
 var NativeMethodsMixin = require('NativeMethodsMixin');

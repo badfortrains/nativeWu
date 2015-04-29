@@ -29,7 +29,7 @@ var AlbumTracks = React.createClass({
       loaded: false,
       animation: true,
       showModal: false,
-      modalTop: 0,
+      modalPosition: {top:0,left:0,width: 50},
     }; 
   },
   fetchData: function(){
@@ -102,7 +102,11 @@ var AlbumTracks = React.createClass({
       this.setState({
         showModal: true,
         modalFilter: sectionID ? {Album: sectionID, Artist: this.props.filter.Artist} : {_id: trackID},
-        modalTop: py
+        modalPosition: {
+          top: py + h / 2,
+          left: px + w / 2,
+          width: w,
+        }
       }) 
     });
   },
@@ -118,13 +122,15 @@ var AlbumTracks = React.createClass({
                 <Text style={styles.trackNumber}>{track.TrackNumber}</Text>
               }
               <Text numberOfLines={1} style={styles.title}>{track.Title}</Text>
-              <TouchableOpacity onPress={(node)=> this.showModal(node,track._id)} style={styles.moreHolder}>
-                <Icon
-                  name='ion|ios-more-outline'
-                  size={24}
-                  color='black'
-                  style={styles.moreIcon}
-                />
+              <TouchableOpacity onPress={(node)=> this.showModal(node,track._id)} >
+                <View style={styles.moreHolder}>
+                  <Icon
+                    name='ion|ios-more-outline'
+                    size={24}
+                    color='black'
+                    style={styles.moreIcon}
+                  />
+                </View>
               </TouchableOpacity>
             </View>
           </View>
@@ -215,7 +221,7 @@ var AlbumTracks = React.createClass({
           style={styles.listView}
         />
         {this.state.showModal ? 
-          <Modal  top={this.state.modalTop || 0} 
+          <Modal  position={this.state.modalPosition} 
                   onClose={this.closeModal}
                   filter={this.state.modalFilter}
           />
@@ -276,18 +282,17 @@ var styles = StyleSheet.create({
   },
   trackRowContainer: {
     flex: 1,
-    paddingLeft: 16,
-    paddingRight: 16,
     backgroundColor: "#FFFFFF",
   },
   trackRow: {
+    paddingLeft: 16,
     borderBottomWidth: 1,
     borderBottomColor: "rgba(0,0,0,0.1)",
     flex: 1,
-    paddingBottom: 16,
-    paddingTop: 16,
     flexDirection: "row",
     overflow: "hidden",
+    alignItems: "center",
+    height: 48,
   },
   rightContainer: {
     flex: 1,
@@ -325,11 +330,15 @@ var styles = StyleSheet.create({
     marginLeft: 8,
   },
   moreHolder: {
-    alignSelf: "flex-end",
+    alignSelf: "stretch",
+    flexDirection: "row",
+    width: 48,
+    paddingLeft: 8,
   },
   moreIcon: {
     height: 24,
     width: 24,
+    alignSelf: "center",
   },
   sectionButtons: {
     flexDirection: "row",
